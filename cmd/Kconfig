@@ -953,6 +953,11 @@ config CMD_GPIO
 	help
 	  GPIO support.
 
+config CMD_LED_TASK
+	bool "led_task"
+	help
+	  Brian's LED Task support.
+
 config CMD_GPT
 	bool "GPT (GUID Partition Table) command"
 	select EFI_PARTITION
