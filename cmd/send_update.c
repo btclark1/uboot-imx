@@ -16,6 +16,7 @@ enum send_update_cmd {
 };
 
 
+int send_update_func( int sub_cmd, int component, char *str_filename );
 int send_update_func( int sub_cmd, int component, char *str_filename )
 {
    return status;
@@ -62,7 +63,7 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	if (!str_filename)
 		goto show_usage;
 
-	send_update(sub_cmd, component, str_filename );
+	send_update_func(sub_cmd, component, str_filename );
 
 	printf("send_update: sub_cmd = %d, component = %d, str_filename = %s", 
                      sub_cmd, component, str_filename );
