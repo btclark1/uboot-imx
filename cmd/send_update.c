@@ -16,7 +16,7 @@ enum send_update_cmd {
 };
 
 
-int send_update( int sub_cmd, int component, char *str_filename )
+int send_update_func( int sub_cmd, int component, char *str_filename )
 {
    return status;
 
