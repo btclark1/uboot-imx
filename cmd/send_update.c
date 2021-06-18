@@ -16,8 +16,8 @@ enum send_update_cmd {
 };
 
 
-int send_update_func( int sub_cmd, int component, char *str_filename );
-int send_update_func( int sub_cmd, int component, char *str_filename )
+int send_update_func( int sub_cmd, int component, const char *str_filename );
+int send_update_func( int sub_cmd, int component, const char *str_filename )
 {
    return 0;
 
@@ -26,9 +26,9 @@ int send_update_func( int sub_cmd, int component, char *str_filename )
 static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	enum send_update_cmd sub_cmd;
-	int validate, component;
+	int validate, component = 0;
 	const char *str_cmd, *str_filename = NULL;
-	int ret;
+  	const char *str_component = NULL;
 
 
 	if (argc < 3)
@@ -66,7 +66,7 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	send_update_func(sub_cmd, component, str_filename );
 
 	printf("send_update: sub_cmd = %d, component = %d, str_filename = %s", 
-                     sub_cmd, component, str_filename );
+                     validate, component, str_filename );
 
 
 err:
