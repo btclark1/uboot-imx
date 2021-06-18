@@ -70,6 +70,7 @@ obj-$(CONFIG_CMD_FUSE) += fuse.o
 obj-$(CONFIG_CMD_GETTIME) += gettime.o
 obj-$(CONFIG_CMD_GPIO) += gpio.o
 obj-$(CONFIG_CMD_LED_TASK) += led_task.o
+obj-$(CONFIG_CMD_SEND_UPDATE) += send_update.o
 obj-$(CONFIG_CMD_HVC) += smccc.o
 obj-$(CONFIG_CMD_I2C) += i2c.o
 obj-$(CONFIG_CMD_IOTRACE) += iotrace.o

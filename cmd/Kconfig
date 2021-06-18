@@ -956,7 +956,12 @@ config CMD_GPIO
 config CMD_LED_TASK
 	bool "led_task"
 	help
-	  Brian's LED Task support.
+	  Brian's LED KPI Task support.
+
+config CMD_SEND_UPDATE
+	bool "send_update"
+	help
+	  Brian's Send Update KPI Task support.
 
 config CMD_GPT
 	bool "GPT (GUID Partition Table) command"

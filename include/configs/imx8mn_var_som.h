@@ -13,8 +13,11 @@
 
 #include "imx_env.h"
 
-/* BTC - Adding for KPI task */
+/* BTC - Adding for LED KPI task */
 #define CONFIG_CMD_LED_TASK
+
+/* BTC - Adding for Send Update KPI task */
+#define CONFIG_CMD_SEND_UPDATE
 
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CSF_SIZE			0x2000 /* 8K region */
