@@ -19,7 +19,7 @@ enum send_update_cmd {
 int send_update( int sub_cmd, int component, char *str_filename )
 {
 
-
+asd
    return status;
 
 }
