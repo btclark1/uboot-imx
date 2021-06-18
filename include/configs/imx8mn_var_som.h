@@ -15,9 +15,11 @@
 
 #ifndef CONFIG_CMD_LED_TASK
 #define CONFIG_CMD_LED_TASK
+#endif
 
 #ifndef CONFIG_CMD_SEND_UPDATE
 #define CONFIG_CMD_SEND_UPDATE
+#endif
 
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CSF_SIZE			0x2000 /* 8K region */
