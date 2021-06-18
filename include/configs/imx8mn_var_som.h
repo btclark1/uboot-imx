@@ -13,8 +13,10 @@
 
 #include "imx_env.h"
 
+#ifndef CONFIG_CMD_LED_TASK
 #define CONFIG_CMD_LED_TASK
 
+#ifndef CONFIG_CMD_SEND_UPDATE
 #define CONFIG_CMD_SEND_UPDATE
 
 #ifdef CONFIG_SECURE_BOOT
