@@ -4,7 +4,6 @@ Send update packages from one device to another
 B. Clark
  */
 
-#include <types.h>
 #include <socket.h>
 #include <stat.h>
 
