@@ -24,22 +24,25 @@ enum send_update_cmd {
 int send_update_func( int sub_cmd, int component, const char *str_filename );
 int send_update_func( int sub_cmd, int component, const char *str_filename )
 {
+
+	tftpboot("rw2");
+
+/*
 	char *buffer[2] = {'1','2'};
 	static char *act;
 	static int  env_changed_id;
 	int	env_id;
-
 	env_id = env_get_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
 		act = env_get("ethact");
 		env_changed_id = env_id;
 	}
-
-	printf("env_id = %d, act = %s", env_id, act);
-
-	int eth_init(void);	
-
+	printf("env_id = %d, act = %s\n", env_id, act);
+	eth_init(void);	
 	eth_send(buffer, 2);
+*/
+
+
    return 0;
 
 }
@@ -86,7 +89,7 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 	send_update_func(sub_cmd, component, str_filename );
 
-	printf("send_update: sub_cmd = %d, component = %d, str_filename = %s", 
+	printf("send_update: sub_cmd = %d, component = %d, str_filename = %s\n", 
                      validate, component, str_filename );
 
 
