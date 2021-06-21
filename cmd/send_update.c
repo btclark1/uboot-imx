@@ -4,16 +4,16 @@ Send update packages from one device to another
 B. Clark
  */
 
-#include <socket.h>
-#include <stat.h>
-
-
 
 #include <common.h>
 #include <command.h>
 #include <errno.h>
 #include <malloc.h>
 #include <linux/err.h>
+
+#include <net.h>
+
+
 
 enum send_update_cmd {
 	SU_VALIDATE,
@@ -24,6 +24,9 @@ enum send_update_cmd {
 int send_update_func( int sub_cmd, int component, const char *str_filename );
 int send_update_func( int sub_cmd, int component, const char *str_filename )
 {
+char *buffer[2] = {1,2};
+
+	eth_send(buffer, 2)
    return 0;
 
 }
