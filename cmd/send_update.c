@@ -4,9 +4,9 @@ Send update packages from one device to another
 B. Clark
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/stat.h>
+#include <types.h>
+#include <socket.h>
+#include <stat.h>
 
 
 
