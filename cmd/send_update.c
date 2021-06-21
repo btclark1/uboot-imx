@@ -26,7 +26,7 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 {
 char *buffer[2] = {'1','2'};
 
-	eth_send(buffer, 2)
+	eth_send(buffer, 2);
    return 0;
 
 }
