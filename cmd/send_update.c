@@ -18,7 +18,6 @@ B. Clark
 #include "packet.h"
 #include "types/error_packet.h"
 
-rftr
 
 #include <common.h>
 #include <command.h>
