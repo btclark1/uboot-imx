@@ -5,6 +5,16 @@ B. Clark
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <time.h>
+#include <string.h>
+#include <netdb.h>
 
 
 #include <common.h>
