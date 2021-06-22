@@ -25,22 +25,23 @@ int send_update_func( int sub_cmd, int component, const char *str_filename );
 int send_update_func( int sub_cmd, int component, const char *str_filename )
 {
 
-	tftpboot("rw2");
 
-/*
-	char *buffer[2] = {'1','2'};
+	char *buffer[3] = {'B','T', 'C'};
 	static char *act;
 	static int  env_changed_id;
 	int	env_id;
+
 	env_id = env_get_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
 		act = env_get("ethact");
 		env_changed_id = env_id;
 	}
 	printf("env_id = %d, act = %s\n", env_id, act);
+
 	eth_init(void);	
-	eth_send(buffer, 2);
-*/
+
+	eth_send(buffer, sizeof(buffer));
+
 
 
    return 0;
