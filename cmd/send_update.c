@@ -13,7 +13,7 @@ B. Clark
 
 #include <net.h>
 
-#include <tftp.h>
+#include <net/tftp.h>
 
 enum send_update_cmd {
 	SU_VALIDATE,
@@ -41,9 +41,10 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 
 	printf("env_id = %d, act = %s, rtn = %d\n", env_id, act, rtn);
 
-	eth_send(buffer, 3);
+	
+	(buffer, 3);
 
-
+tftp_send();
 
    return 0;
 
