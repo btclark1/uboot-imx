@@ -13,10 +13,7 @@ B. Clark
 
 #include <net.h>
 
-#include <env.h>
-#include <api_public.h>
-#include "glue.h"
-
+#include <tftp.h>
 
 enum send_update_cmd {
 	SU_VALIDATE,
@@ -46,16 +43,6 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 
 	eth_send(buffer, 3);
 
-
-	/* test networking */
-	printf("Trying network devices...\n");
-	for (i = 0; i < devs_no; i++) {
-		di = ub_dev_get(i);
-
-		if (di->type == DEV_TYP_NET)
-			break;
-
-	}
 
 
    return 0;
