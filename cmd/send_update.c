@@ -26,7 +26,7 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 {
 
 
-	char *buffer[3] = {'B','T', 'C'};
+	char *buffer[3] = {"B","T","C"};
 	static char *act;
 	static int  env_changed_id;
 	int	env_id;
@@ -40,7 +40,7 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 
 	eth_init(void);	
 
-	eth_send(buffer, sizeof(buffer));
+	eth_send(buffer, 3);
 
 
 
