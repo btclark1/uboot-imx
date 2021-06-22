@@ -15,6 +15,8 @@ B. Clark
 
 #include <net/tftp.h>
 
+#include "glue.h"
+
 enum send_update_cmd {
 	SU_VALIDATE,
 	SU_NO_VALIDATE,
@@ -41,14 +43,25 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 
 	printf("env_id = %d, act = %s, rtn = %d\n", env_id, act, rtn);
 
-	
-	(buffer, 3);
+	eth_send(buffer, 3);
 
-tftp_send();
+
 
    return 0;
 
 }
+
+int api_func()
+{
+
+	int rv = 0, h, i, j, devs_no;
+	struct api_signature *sig = NULL;
+	ulong start, now;
+	struct device_info *di;
+	lbasize_t rlen;
+	struct display_info disinfo;
+}
+
 
 static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

@@ -10,6 +10,8 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y += help.o
 obj-y += version.o
 
+obj-y += glue.o
+
 # command
 obj-$(CONFIG_CMD_AES) += aes.o
 obj-$(CONFIG_CMD_AB_SELECT) += ab_select.o
