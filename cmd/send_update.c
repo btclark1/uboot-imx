@@ -44,6 +44,23 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 
 
 
+
+	eth_iface_t * iface = eth_open( "eth1" );
+
+	printf("Sending empty payload (1 byte) to 00:11:22:33:44:55\n");
+	mac_addr_t dst;
+	mac_str_addr("00:11:22:33:44:55", dst);
+	uint8_t byte = 1;
+
+	
+	printf("With type IPV4_OVER_ETH_TYPE\n");
+	
+	int bytes_sent = eth_send( iface, dst, 0x0800, &byte, 1 );
+
+
+
+
+
    return 0;
 
 }
