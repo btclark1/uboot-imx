@@ -10,7 +10,11 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y += help.o
 obj-y += version.o
 
-obj-y += glue.o
+# Source files located in the examples/api directory
+OBJ-y += crt0.o
+OBJ-y += demo.o
+OBJ-y += glue.o
+OBJ-y += libgenwrap.o
 
 # command
 obj-$(CONFIG_CMD_AES) += aes.o
