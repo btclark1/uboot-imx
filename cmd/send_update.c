@@ -13,6 +13,9 @@ B. Clark
 
 #include <net.h>
 
+#include <env.h>
+#include <api_public.h>
+#include "glue.h"
 
 
 enum send_update_cmd {
@@ -36,29 +39,23 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 		act = env_get("ethact");
 		env_changed_id = env_id;
 	}
-	printf("env_id = %d, act = %s\n", env_id, act);
+	
+	int rtn = eth_init();	
 
-	eth_init();	
+	printf("env_id = %d, act = %s, rtn = %d\n", env_id, act, rtn);
 
 	eth_send(buffer, 3);
 
 
+	/* test networking */
+	printf("Trying network devices...\n");
+	for (i = 0; i < devs_no; i++) {
+		di = ub_dev_get(i);
 
+		if (di->type == DEV_TYP_NET)
+			break;
 
-	eth_iface_t * iface = eth_open( "eth1" );
-
-	printf("Sending empty payload (1 byte) to 00:11:22:33:44:55\n");
-	mac_addr_t dst;
-	mac_str_addr("00:11:22:33:44:55", dst);
-	uint8_t byte = 1;
-
-	
-	printf("With type IPV4_OVER_ETH_TYPE\n");
-	
-	int bytes_sent = eth_send( iface, dst, 0x0800, &byte, 1 );
-
-
-
+	}
 
 
    return 0;
