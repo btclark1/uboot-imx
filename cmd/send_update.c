@@ -38,7 +38,7 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 	}
 	printf("env_id = %d, act = %s\n", env_id, act);
 
-	eth_init(void);	
+	eth_init();	
 
 	eth_send(buffer, 3);
 
@@ -93,9 +93,7 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	printf("send_update: sub_cmd = %d, component = %d, str_filename = %s\n", 
                      validate, component, str_filename );
 
-
-err:
-	return CMD_RET_FAILURE;
+	return 0;
 }
 
 U_BOOT_CMD(send_update, 4, 0, do_send_update,
