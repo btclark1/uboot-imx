@@ -15,8 +15,6 @@ B. Clark
 
 #include <net/tftp.h>
 
-#include "glue.h"
-
 #include <api.h>
 
 enum send_update_cmd {
