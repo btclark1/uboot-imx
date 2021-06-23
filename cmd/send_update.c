@@ -17,7 +17,7 @@ B. Clark
 
 #include "glue.h"
 
-#include "api_public.h"
+#include <api.h>
 
 enum send_update_cmd {
 	SU_VALIDATE,
