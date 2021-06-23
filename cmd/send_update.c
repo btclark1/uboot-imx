@@ -12,10 +12,10 @@ B. Clark
 #include <linux/err.h>
 
 #include <net.h>
-aSZErsewe
+
 #include <net/tftp.h>
 
-#include <api.h>
+#include <api_net.h>
 
 enum send_update_cmd {
 	SU_VALIDATE,
