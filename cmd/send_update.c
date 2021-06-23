@@ -11,11 +11,16 @@ B. Clark
 #include <malloc.h>
 #include <linux/err.h>
 
+#include <env.h>
+#include <linux/types.h>
+#include <api_public.h>
+
+#include "glue.h"
+
 #include <net.h>
 
 #include <net/tftp.h>
 
-#include <api_net.h>
 
 enum send_update_cmd {
 	SU_VALIDATE,
