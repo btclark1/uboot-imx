@@ -11,15 +11,15 @@ B. Clark
 #include <malloc.h>
 #include <linux/err.h>
 
-#include <env.h>
-#include <linux/types.h>
-#include <api_public.h>
+//#include <env.h>
+//#include <linux/types.h>
+//#include <api_public.h>
 
-#include "glue.h"
+//#include "glue.h"
 
-#include <net.h>
+//#include <net.h>
 
-#include <net/tftp.h>
+//#include <net/tftp.h>
 
 
 enum send_update_cmd {
@@ -59,12 +59,13 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 int api_func()
 {
 
-	int rv = 0, h, i, j, devs_no;
-	struct api_signature *sig = NULL;
-	ulong start, now;
-	struct device_info *di;
-	lbasize_t rlen;
-	struct display_info disinfo;
+	//int rv = 0, h, i, j, devs_no;
+	//struct api_signature *sig = NULL;
+	//ulong start, now;
+	//struct device_info *di;
+	//lbasize_t rlen;
+	//struct display_info disinfo;
+  return(1);
 }
 
 

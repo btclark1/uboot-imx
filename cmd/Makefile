@@ -10,10 +10,6 @@ obj-$(CONFIG_CMD_BOOTM) += bootm.o
 obj-y += help.o
 obj-y += version.o
 
-# Source files located in the examples/api directory
-OBJ-y += glue.o
-OBJ-y += libgenwrap.o
-
 # command
 obj-$(CONFIG_CMD_AES) += aes.o
 obj-$(CONFIG_CMD_AB_SELECT) += ab_select.o
