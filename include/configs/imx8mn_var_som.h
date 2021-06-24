@@ -97,7 +97,7 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_MII
-#define CONFIG_ETHPRIME			"FEC"
+#define CONFIG_ETHPRIME			"eth0"
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define FEC_QUIRK_ENET_MAC
@@ -121,6 +121,10 @@
 /* Initial environment variables */
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_MFG_ENV_SETTINGS \
+	"serverip=192.168.1.4\0" \
+	"ipaddr=192.168.1.100\0" \
+	"ethact=eth0\0" \
+	"ethprime=eth0\0" \
 	"bootdir=/boot\0" \
 	"script=boot.scr\0" \
 	"image=Image.gz\0" \
