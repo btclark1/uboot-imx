@@ -11,7 +11,7 @@ obj-y += help.o
 obj-y += version.o
 
 # BTC - Support for API
-obj-y += glue.o
+#obj-y += glue.o
 
 
 # command

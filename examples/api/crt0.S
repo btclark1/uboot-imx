@@ -26,6 +26,22 @@ syscall:
 
 #elif defined(CONFIG_ARM)
 
+#ifdef CONFIG_ARM64
+	.text
+	.globl _start
+_start:
+	ldr	x10, =search_hint
+	str	xzr, [x10]
+	b	main
+
+ 
+	.globl syscall
+syscall:
+	ldr	x10, =syscall_ptr
+	ldr	x30, [x10]
+	ret
+#else
+
 	.text
 	.globl _start
 _start:
@@ -38,6 +54,8 @@ _start:
 syscall:
 	ldr	ip, =syscall_ptr
 	ldr	pc, [ip]
+
+#endif
 
 #elif defined(CONFIG_MIPS)
 #include <asm/asm.h>
@@ -68,9 +86,10 @@ return_addr:
 #error No support for this arch!
 #endif
 
+	.align	8
 	.globl syscall_ptr
 syscall_ptr:
-	.align	8
+
 	.long	0
 
 	.globl search_hint

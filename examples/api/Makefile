@@ -23,8 +23,8 @@ endif
 extra-y = demo
 
 # Source files located in the examples/api directory
-#OBJ-y += crt0.o
-#OBJ-y += demo.o
+OBJ-y += crt0.o
+OBJ-y += demo.o
 OBJ-y += glue.o
 OBJ-y += libgenwrap.o
 
