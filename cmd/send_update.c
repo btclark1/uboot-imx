@@ -42,8 +42,8 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 	static char *act;
 	static int  env_changed_id;
 	int	env_id = 0;
-	const char *env_var = "ethaddr";
-	uint8_t *enetaddr;
+	
+	unsigned char enetaddr[6];
 
 	env_id = env_get_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
@@ -53,9 +53,10 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 	
 	int init_rtn = eth_init();	
 
-	int mac_rtn = eth_env_get_enetaddr(env_var, enetaddr);
+	int mac_rtn = eth_env_get_enetaddr("ethaddr", enetaddr);
 
-	printf("env_id = %d, act = %s, init_rtn = %d, mac_rtn = %d\n", env_id, act, init_rtn, mac_rtn);
+	printf("env_id = %d, act = %s, init_rtn = %d, mac_rtn = %d, enetaddr = %s\n",
+	 env_id, act, init_rtn, mac_rtn, enetaddr);
 
 	eth_send(buffer, 3);
 

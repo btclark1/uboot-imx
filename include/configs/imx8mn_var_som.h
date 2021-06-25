@@ -97,6 +97,7 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_MII
+#define CONFIG_CMD_MDIO
 #define CONFIG_ETHPRIME			"eth0"
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
