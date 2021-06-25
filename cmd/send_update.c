@@ -10,16 +10,18 @@ B. Clark
 #include <errno.h>
 #include <malloc.h>
 #include <linux/err.h>
+#include <dm.h>
+#include <dm/root.h>
 
 /* may need for raw eth */
-//#include <net.h>
-//#include <net/tftp.h>
+#include <net.h>
+#include <net/tftp.h>
 
 /* API demo defines */
-#define BUF_SZ		2048
-#define WAIT_SECS	5
-static char buf[BUF_SZ];
-#define errf(fmt, args...) do { printf("ERROR @ %s(): ", __func__); printf(fmt, ##args); } while (0)
+//#define BUF_SZ		2048
+//#define WAIT_SECS	5
+//static char buf[BUF_SZ];
+//#define errf(fmt, args...) do { printf("ERROR @ %s(): ", __func__); printf(fmt, ##args); } while (0)
 
 enum send_update_cmd {
 	SU_VALIDATE,
@@ -51,14 +53,19 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 		env_changed_id = env_id;
 	}
 	
+	int dm_rtn = dm_init(false);
+	int dm_scan = dm_scan_platdata(false);
 	int init_rtn = eth_init();	
+
+	printf("dm_rtn = %d, dm_scan = %d, init_rtn = %d\n", dm_rtn, dm_scan, init_rtn);
 
 	int mac_rtn = eth_env_get_enetaddr("ethaddr", enetaddr);
 
-	printf("env_id = %d, act = %s, init_rtn = %d, mac_rtn = %d, enetaddr = %s\n",
-	 env_id, act, init_rtn, mac_rtn, enetaddr);
+	int send_rtn = eth_send(buffer, 3);
 
-	eth_send(buffer, 3);
+	printf("env_id = %d, act = %s, mac_rtn = %d, enetaddr = %s, send_rtn = %d\n",
+	 env_id, act, mac_rtn, enetaddr, send_rtn);
+
 
    return 0;
 
