@@ -56,12 +56,16 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 		act = env_get("ethact");
 		env_changed_id = env_id;
 	}
+	printf("env_get_id = %d\n", env_id);
+	printf("env_get = %s\n", act);
 	
 	int dm_rtn = dm_init(false);
 	int dm_scan = dm_scan_platdata(false);
 	int init_rtn = eth_init();	
 
-	printf("dm_rtn = %d, dm_scan = %d, init_rtn = %d\n", dm_rtn, dm_scan, init_rtn);
+	printf("dm_init = %d\n", dm_rtn);
+	printf("dm_scan_platdata = %d\n", dm_scan);
+	printf("eth_init = %d\n",init_rtn);
 
 
 //	dev = eth_get_dev_by_name("eth0");
@@ -71,7 +75,9 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 
 	addr = eth_get_ethaddr();
 
-	printf("dev->name = %s, dev->seq = %d, addr = %s\n", dev->name, dev->seq, addr);
+	printf("dev->name = %s\n", dev->name);
+	printf("dev->seq = %d\n", dev->seq);
+	printf("eth_get_ethaddr = %s\n", addr);
 
 	int mac_rtn = eth_env_get_enetaddr("ethaddr", enetaddr);
 
@@ -82,9 +88,8 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 
 	int send_rtn = eth_send(buffer, 3);
 
-	printf("env_id = %d, act = %s, mac_rtn = %d, enetaddr = %s, env_enetaddr = %s, send_rtn = %d\n",
-	 env_id, act, mac_rtn, enetaddr, env_enetaddr, send_rtn);
-
+	printf("mac_rtn = %d, enetaddr = %s, env_enetaddr = %s, send_rtn = %d\n",
+	  mac_rtn, enetaddr, env_enetaddr, send_rtn);
 
    return 0;
 

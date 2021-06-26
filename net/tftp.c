@@ -5,7 +5,10 @@
  * Copyright 2011 Comelit Group SpA,
  *                Luca Ceresoli <luca.ceresoli@comelit.it>
  */
-
+ #define DEBUG
+ #undef CONFIG_LOGLEVEL
+ #define CONFIG_LOGLEVEL 8
+ 
 #include <common.h>
 #include <command.h>
 #include <efi_loader.h>
