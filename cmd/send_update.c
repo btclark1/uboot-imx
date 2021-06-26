@@ -44,10 +44,13 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 	static char *act;
 	static int  env_changed_id;
 	int	env_id = 0;
-	
+
+	unsigned char *addr;	
 	unsigned char enetaddr[6];
 	uint8_t env_enetaddr[6];
 
+	struct udevice *dev;
+	
 	env_id = env_get_id();
 	if ((act == NULL) || (env_changed_id != env_id)) {
 		act = env_get("ethact");
@@ -59,6 +62,16 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 	int init_rtn = eth_init();	
 
 	printf("dm_rtn = %d, dm_scan = %d, init_rtn = %d\n", dm_rtn, dm_scan, init_rtn);
+
+
+//	dev = eth_get_dev_by_name("eth0");
+	dev = eth_get_dev();
+
+	//eth_set_dev(dev);
+
+	addr = eth_get_ethaddr();
+
+	printf("dev->name = %s, dev->seq = %d, addr = %s\n", dev->name, dev->seq, addr);
 
 	int mac_rtn = eth_env_get_enetaddr("ethaddr", enetaddr);
 
