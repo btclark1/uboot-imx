@@ -10,7 +10,7 @@
  #define DEBUG
  #undef CONFIG_LOGLEVEL
  #define CONFIG_LOGLEVEL 8
- 
+
 
 #include <common.h>
 #include <dm.h>
@@ -359,7 +359,9 @@ int eth_send(void *packet, int length)
 	ret = eth_get_ops(current)->send(current, packet, length);
 	if (ret < 0) {
 		/* We cannot completely return the error at present */
-		debug("%s: send() returned error %d\n", __func__, ret);
+		debug("BTC - In %s: send() returned error %d\n", __func__, ret);
+		debug("BTC - In %s: packet = %p, length = %d\n", __func__, packet, length);
+
 	}
 #if defined(CONFIG_CMD_PCAP)
 	if (ret >= 0)

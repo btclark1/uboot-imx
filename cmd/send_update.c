@@ -30,6 +30,7 @@ enum send_update_cmd {
 
 
 int send_update_func( int sub_cmd, int component, const char *str_filename );
+static int send_update2(void);
 
 //int api_func(void);
 //void test_dump_di(int handle);
@@ -52,19 +53,20 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 	struct udevice *dev;
 	
 	env_id = env_get_id();
+	printf("env_get_id = %d\n", env_id);
 	if ((act == NULL) || (env_changed_id != env_id)) {
 		act = env_get("ethact");
+		printf("env_get = %s\n", act);
 		env_changed_id = env_id;
 	}
-	printf("env_get_id = %d\n", env_id);
-	printf("env_get = %s\n", act);
 	
 	int dm_rtn = dm_init(false);
-	int dm_scan = dm_scan_platdata(false);
-	int init_rtn = eth_init();	
-
 	printf("dm_init = %d\n", dm_rtn);
+	
+	int dm_scan = dm_scan_platdata(false);
 	printf("dm_scan_platdata = %d\n", dm_scan);
+
+	int init_rtn = eth_init();	
 	printf("eth_init = %d\n",init_rtn);
 
 
@@ -96,6 +98,61 @@ int send_update_func( int sub_cmd, int component, const char *str_filename )
 }
 
 /******************************************************/
+
+static int send_update2(void)
+{
+	uchar *pkt;
+	ushort *s;
+	ushort *cp;
+	struct ethernet_hdr *et;
+	int len;
+	ushort chksum;
+
+	static const uchar cdp_snap_hdr[8] = {
+		0xAA, 0xAA, 0x03, 0x00, 0x00, 0x0C, 0x20, 0x00 };
+
+	pkt = net_tx_packet;
+	et = (struct ethernet_hdr *)pkt;
+
+	/* NOTE: trigger sent not on any VLAN */
+
+	/* form ethernet header */
+	memcpy(et->et_dest, net_ethaddr, 6);
+	memcpy(et->et_src, net_ethaddr, 6);
+
+	pkt += ETHER_HDR_SIZE;
+
+	/* SNAP header */
+	memcpy((uchar *)pkt, cdp_snap_hdr, sizeof(cdp_snap_hdr));
+	pkt += sizeof(cdp_snap_hdr);
+
+	/* CDP header */
+	*pkt++ = 0x02;				/* CDP version 2 */
+	*pkt++ = 180;				/* TTL */
+	s = (ushort *)pkt;
+	cp = s;
+	/* checksum (0 for later calculation) */
+	*s++ = htons(0);
+
+
+	/* length of ethernet packet */
+	len = (uchar *)s - ((uchar *)net_tx_packet + ETHER_HDR_SIZE);
+	et->et_protlen = htons(len);
+
+	len = ETHER_HDR_SIZE + sizeof(cdp_snap_hdr);
+	//chksum = cdp_compute_csum((uchar *)net_tx_packet + len,
+	//			  (uchar *)s - (net_tx_packet + len));
+	chksum = 0;
+	if (chksum == 0)
+		chksum = 0xFFFF;
+	*cp = htons(chksum);
+
+	net_send_packet(net_tx_packet, (uchar *)s - net_tx_packet);
+	return 0;
+}
+
+/******************************************************/
+
 
 static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
@@ -137,11 +194,11 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	if (!str_filename)
 		goto show_usage;
 
-	send_update_func(sub_cmd, component, str_filename );
-
-	printf("send_update: sub_cmd = %d, component = %d, str_filename = %s\n", 
-                     validate, component, str_filename );
-
+	//send_update_func(sub_cmd, component, str_filename );
+	//printf("send_update: sub_cmd = %d, component = %d, str_filename = %s\n", 
+   //                  validate, component, str_filename );
+	int rtn = send_update2();
+	printf("send_update2 = %d\n", rtn);
 	return 0;
 }
 
