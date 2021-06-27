@@ -111,13 +111,17 @@ static int send_update2(void)
 	static const uchar cdp_snap_hdr[8] = {
 		0xAA, 0xAA, 0x03, 0x00, 0x00, 0x0C, 0x20, 0x00 };
 
+	/* Ethernet address of my Ubuntu PC- A8:A1:59:24:20:ED*/
+	const u8 net_dest_ethaddr[6] = { 0xAB, 0xA1, 0x59, 0x24, 0x20, 0xED };
+
 	pkt = net_tx_packet;
 	et = (struct ethernet_hdr *)pkt;
+
 
 	/* NOTE: trigger sent not on any VLAN */
 
 	/* form ethernet header */
-	memcpy(et->et_dest, net_ethaddr, 6);
+	memcpy(et->et_dest, net_dest_ethaddr, 6);
 	memcpy(et->et_src, net_ethaddr, 6);
 
 	pkt += ETHER_HDR_SIZE;
