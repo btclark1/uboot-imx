@@ -326,7 +326,7 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 }
 
 U_BOOT_CMD(
-	send_update,	4,	1,	do_send_update,
+	send_update, 2, 1, do_send_update,
 	"send update .... add info",
 	"device"
 );
