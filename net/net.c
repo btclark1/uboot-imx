@@ -500,6 +500,13 @@ restart:
 			ping_start();
 			break;
 #endif
+
+#if defined(CONFIG_CMD_SEND_UPDATE)
+		case SEND_UPDATE:
+			send_update_start();
+			break;
+#endif
+
 #if defined(CONFIG_CMD_NFS) && !defined(CONFIG_SPL_BUILD)
 		case NFS:
 			nfs_start();

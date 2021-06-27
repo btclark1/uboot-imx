@@ -543,7 +543,7 @@ extern ushort		net_native_vlan;	/* Our Native VLAN */
 extern int		net_restart_wrap;	/* Tried all network devices */
 
 enum proto_t {
-	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, DNS, NFS, CDP, NETCONS, SNTP,
+	BOOTP, RARP, ARP, TFTPGET, DHCP, PING, SEND_UPDATE, DNS, NFS, CDP, NETCONS, SNTP,
 	TFTPSRV, TFTPPUT, LINKLOCAL, FASTBOOT, WOL
 };
 
@@ -562,7 +562,13 @@ extern char *net_dns_env_var;		/* the env var to put the ip into */
 
 #if defined(CONFIG_CMD_PING)
 extern struct in_addr net_ping_ip;	/* the ip address to ping */
+
 #endif
+
+#if defined(CONFIG_CMD_SEND_UPDATE)
+extern struct in_addr net_update_ip;	/* the ip address to ping */
+#endif
+
 
 #if defined(CONFIG_CMD_CDP)
 /* when CDP completes these hold the return values */

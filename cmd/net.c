@@ -298,6 +298,42 @@ U_BOOT_CMD(
 );
 #endif
 
+#if defined(CONFIG_CMD_SEND_UPDATE)
+static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	if (argc < 2)
+		return CMD_RET_USAGE;
+
+	net_update_ip = string_to_ip(argv[1]);
+	if (net_update_ip.s_addr == 0)
+		return CMD_RET_USAGE;
+
+	//memcpy(net_update_ip.s_addr, net_ping_ip.s_addr, sizeof(net_ping_ip));
+
+	if (net_loop(PING) < 0) {
+		printf("ping to host %s failed; host is not alive\n", argv[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	printf("host %s is alive\n", argv[1]);
+
+	if (net_loop(SEND_UPDATE) < 0) {
+		printf("send_update to host %s failed; \n", argv[1]);
+		return CMD_RET_FAILURE;
+	}
+
+	return CMD_RET_SUCCESS;
+}
+
+U_BOOT_CMD(
+	send_update,	4,	1,	do_send_update,
+	"send update .... add info",
+	"device"
+);
+#endif
+
+
+
 #if defined(CONFIG_CMD_CDP)
 
 static void cdp_update_env(void)
