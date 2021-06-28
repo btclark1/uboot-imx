@@ -138,7 +138,7 @@ void update_send(struct update_header header, char *update_data,
 	case DONE:
 		printf("update_send State = DONE, sequence_number = %d\n", sequence_number);
 		/* Write response */
-		sprintf(response, "DONE = %d", "From send_update", DONE);
+		sprintf(response, "%s - DONE = %d", "From send_update", DONE);
 		memcpy(packet, response, strlen(response));
 		packet += strlen(response);
 		break;
@@ -185,7 +185,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	remote_port = sport;
 
 
-	printf("update_rec_handler - packet = %s\n", packet);
+	printf("update_rec_handler - packet = %s, sport = %d, dport = %d\n", packet, sport, dport);
 
 	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
 		return;
