@@ -220,6 +220,7 @@ void update_start_server(void)
 	printf("Listening for Update command on %pI4\n", &net_ip);
 
 	our_port = 15;
+	remote_port = 15;
 
 	net_set_udp_handler(update_rec_handler);
 
