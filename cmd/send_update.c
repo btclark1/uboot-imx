@@ -17,90 +17,222 @@ B. Clark
 #include <net.h>
 #include <net/tftp.h>
 
-#include <watchdog.h>
-
-/* API demo defines */
-//#define BUF_SZ		2048
-//#define WAIT_SECS	5
-//static char buf[BUF_SZ];
-//#define errf(fmt, args...) do { printf("ERROR @ %s(): ", __func__); printf(fmt, ##args); } while (0)
-
-enum send_update_cmd {
-	SU_VALIDATE,
-	SU_NO_VALIDATE,
-};
-
-#define UPDATE_RESPONSE_LEN 10
+//#include <watchdog.h>
 
 struct __packed update_header {
 	uchar id;
 	unsigned short seq;
 };
+#define UPDATE_RESPONSE_LEN 10
+#define PACKET_SIZE 1024
+#define DATA_SIZE (PACKET_SIZE - sizeof(struct update_header))
+
+/* The UDP port at their end */
+static int remote_port;
+/* The UDP port at our end */
+static int our_port;
+
+enum { ERROR = 0,	QUERY = 1, INIT = 2,	UPDATE = 3,};
+
+
+/* Keep track of last packet for resubmission */
+static uchar last_packet[PACKET_SIZE];
+static unsigned int last_packet_len;
 
 /* Sequence number sent for every packet */
 static unsigned short sequence_number = 1;
+static const unsigned short packet_size = PACKET_SIZE;
+static const unsigned short udp_version = 1;
+
 
 /* The ip address to update to */
 struct in_addr net_update_ip;
 char net_update_file_name[128];
 
-void send_update_start(void);
+//void send_update_start(void);
 
-void udp_send(const char *msg);
-void send_update_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len);
+void update_send(struct update_header header, char *update_data,
+			  unsigned int update_data_len, uchar retransmit);
+
+void update_start_server(void);
 
 /******************************************/
-void send_update_start(void)
-{
+//void send_update_start(void)
+//{
 	//int rtn = send_message();
-
-	udp_send("BTCBTC");
-
-	return;
-
-}
+//	update_send("BTCBTC");
+//	return;
+//}
 
 /******************************************/
-void send_update_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
-{
-	return;
-}
-
-/******************************************/
-void udp_send(const char *msg)
+void update_send(struct update_header header, char *update_data,
+			  unsigned int update_data_len, uchar retransmit)
 {
 	uchar *packet;
 	uchar *packet_base;
 	int len = 0;
 	char response[UPDATE_RESPONSE_LEN] = {0};
+	short tmp;
+	const char *error_msg = "An error occurred.";
 
-	struct update_header response_header = {
-		.id = 1,
-		.seq = htons(sequence_number)
-	};
+	struct update_header response_header = header;
 	++sequence_number;
 	packet = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
 	packet_base = packet;
+
+		/* Resend last packet */
+	if (retransmit) {
+		memcpy(packet, last_packet, last_packet_len);
+		net_send_udp_packet(net_server_ethaddr, net_update_ip,
+				    remote_port, our_port, last_packet_len);
+		return;
+	}
 
 	/* Write headers */
 	memcpy(packet, &response_header, sizeof(response_header));
 	packet += sizeof(response_header);
 
-	/* Write response */
-	sprintf(response, "%s %s", "From send_update", msg);
-	memcpy(packet, response, strlen(response));
-	packet += strlen(response);
+	switch (header.id) {
+	case QUERY:
+		printf("update_send State = QUERY\n");
+		tmp = htons(sequence_number);
+		memcpy(packet, &tmp, sizeof(tmp));
+		packet += sizeof(tmp);
+		break;
+	case INIT:
+		printf("update_send State = INIT\n");
+		tmp = htons(udp_version);
+		memcpy(packet, &tmp, sizeof(tmp));
+		packet += sizeof(tmp);
+		tmp = htons(packet_size);
+		memcpy(packet, &tmp, sizeof(tmp));
+		packet += sizeof(tmp);
+		break;
+	case ERROR:
+		printf("update_send State = ERROR\n");
+		memcpy(packet, error_msg, strlen(error_msg));
+		packet += strlen(error_msg);
+		break;
+	case UPDATE:
+		printf("update_send State = UPDATE\n");
+		/* Write response */
+		sprintf(response, "%s %s", "From send_update", update_data);
+		memcpy(packet, response, strlen(response));
+		packet += strlen(response);
 
-	/* Write  file */
-	strcpy((char *)packet, net_update_file_name);
-	packet += strlen(net_update_file_name) + 1;
+		/* Write  file */
+		strcpy((char *)packet, net_update_file_name);
+		packet += strlen(net_update_file_name) + 1;
+		/*
+		 * Sent some INFO packets, need to update sequence number in
+		 * header
+		 */
+		if (header.seq != sequence_number) {
+			response_header.seq = htons(sequence_number);
+			memcpy(packet_base, &response_header,
+			       sizeof(response_header));
+		}
+		break;
+	default:
+		pr_err("ID %d not implemented.\n", header.id);
+		return;
+	}
 
 	len = packet - packet_base;
 
-	net_send_udp_packet(net_server_ethaddr, net_update_ip, 15, 15, len);
+	printf("In update_send - len = %d\n", len);
+
+	net_send_udp_packet(net_server_ethaddr, net_update_ip, remote_port, our_port, len);
+
+	printf("In update_send - len = %d\n", len);
+
+}
+/**********************************************************************/
+/**
+ * update_rec_handler() - Incoming UDP packet handler.
+ *
+ * @packet: Pointer to incoming UDP packet
+ * @dport: Destination UDP port
+ * @sip: Source IP address
+ * @sport: Source UDP port
+ * @len: Packet length
+ */
+static void update_rec_handler(uchar *packet, unsigned int dport,
+			     struct in_addr sip, unsigned int sport,
+			     unsigned int len)
+{
+	struct update_header header;
+	char update_data[DATA_SIZE] = {0};
+	unsigned int update_data_len = 0;
+
+	/* check its from our port and the expected IP */
+	if (dport != our_port)
+	{
+		printf("Not our port ... \n");
+		return;
+	}
+
+	remote_port = sport;
+
+	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
+		return;
+	memcpy(&header, packet, sizeof(header));
+	header.seq = ntohs(header.seq);
+	packet += sizeof(header);
+	len -= sizeof(header);
+
+	switch (header.id) {
+	case QUERY:
+		printf("update_handler State = QUERY\n");
+		update_send(header, update_data, 0, 0);
+		break;
+	case INIT:
+	case UPDATE:
+		printf("update_handler State = INIT/UPDATE\n");
+		update_data_len = len;
+		if (len > 0)
+			memcpy(update_data, packet, len);
+		if (header.seq == sequence_number) {
+			update_send(header, update_data,
+				      update_data_len, 0);
+			sequence_number++;
+		} else if (header.seq == sequence_number - 1) {
+			/* Retransmit last sent packet */
+			update_send(header, update_data,
+				      update_data_len, 1);
+		}
+		break;
+	default:
+		pr_err("ID %d not implemented.\n", header.id);
+		header.id = ERROR;
+		update_send(header, update_data, 0, 0);
+		break;
+	}
 }
 
 /******************************************************/
+void update_start_server(void)
+{
+	struct update_header header;
+	char update_data[10];
+
+	printf("Using %s device\n", eth_get_name());
+	printf("Listening for Update command on %pI4\n", &net_ip);
+
+	our_port = 15;
+
+	net_set_udp_handler(update_rec_handler);
+
+	/* zero out server ether in case the server ip has changed */
+	memset(net_server_ethaddr, 0, 6);
+
+	header.id = QUERY;
+	header.seq = 1;
+	memcpy(update_data, "Test", 4);
+
+	update_send(header, update_data, sizeof(update_data), 0);
+}
+
 
 
 /********************* END OF FILE *********************************/

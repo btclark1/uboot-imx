@@ -327,13 +327,12 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 		printf("exiting on net_update_ip.s_addr check...\n");
 		return CMD_RET_USAGE;
 	}
+	copy_filename(net_update_file_name, argv[2],
+			      sizeof(net_update_file_name));
 	if (net_loop(SEND_UPDATE) < 0) {
 		printf("send_update to host %s failed; \n", argv[1]);
 		return CMD_RET_FAILURE;
 	}
-
-	copy_filename(net_update_file_name, argv[2],
-			      sizeof(net_update_file_name));
 
 	return CMD_RET_SUCCESS;
 }

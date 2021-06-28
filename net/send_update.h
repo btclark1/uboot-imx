@@ -12,7 +12,8 @@
 /*
  * Initialize send update (beginning of netloop)
  */
-void send_update_start(void);
+//void send_update_start(void);
+void update_start_server(void);
 
 /*
  * Deal with the receipt of a send update packet
