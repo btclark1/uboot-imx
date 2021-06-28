@@ -30,6 +30,17 @@ enum send_update_cmd {
 	SU_NO_VALIDATE,
 };
 
+#define UPDATE_RESPONSE_LEN 10
+
+struct __packed update_header {
+	uchar id;
+	uchar flags;
+	unsigned short seq;
+};
+
+/* Sequence number sent for every packet */
+static unsigned short sequence_number = 1;
+
 /* The ip address to update to */
 struct in_addr net_update_ip;
 
@@ -41,12 +52,23 @@ static void send_timeout_handler(void);
 
 void send_update_start(void);
 
+void udp_send(const char *msg);
+
 
 
 void send_update_start(void)
 {
 	int rtn = send_message();
 
+	udp_send("BTCBTC");
+
+	return;
+
+}
+
+void send_update_receive(struct ethernet_hdr *et, struct ip_udp_hdr *ip, int len)
+{
+	return;
 }
 
 /*
@@ -118,6 +140,38 @@ int send_message()
 	return 0;
 
 }
+
+/******************************************/
+void udp_send(const char *msg)
+{
+	uchar *packet;
+	uchar *packet_base;
+	int len = 0;
+	char response[UPDATE_RESPONSE_LEN] = {0};
+
+	struct update_header response_header = {
+		.id = 1,
+		.flags = 0,
+		.seq = htons(sequence_number)
+	};
+	++sequence_number;
+	packet = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
+	packet_base = packet;
+
+	/* Write headers */
+	memcpy(packet, &response_header, sizeof(response_header));
+	packet += sizeof(response_header);
+	/* Write response */
+	sprintf(response, "%s %s", "From send_update", msg);
+
+	memcpy(packet, response, strlen(response));
+	packet += strlen(response);
+
+	len = packet - packet_base;
+
+	net_send_udp_packet(net_server_ethaddr, net_update_ip, 15, 15, len);
+}
+
 /******************************************************/
 
 static int send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -128,7 +182,7 @@ static int send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
   	const char *str_component = NULL;
 
 
-	if (argc < 3)
+	if (argc < 4)
    {
  show_usage:
 		return CMD_RET_USAGE;

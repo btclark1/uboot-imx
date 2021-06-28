@@ -301,22 +301,34 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_SEND_UPDATE)
 static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 2)
+	if (argc < 4)
+	{
+		printf("exiting on argc check - argc = %d, argv[0] = %s, argv[1] = %s\n", argc, argv[0], argv[1]);
 		return CMD_RET_USAGE;
+	}
+
+	printf("exiting on argc check - argc = %d, argv[0] = %s, argv[1] = %s\n", argc, argv[0], argv[1]);
+
+	/* Ping the destination to make sure its alive */
+	net_ping_ip = string_to_ip(argv[1]);
+	if (net_ping_ip.s_addr == 0)
+	{
+		printf("exiting on net_ping_ip.s_addr check...\n");
+		return CMD_RET_USAGE;
+	}
+	if (net_loop(PING) < 0) {
+		printf("ping failed; host %s is not alive\n", argv[1]);
+		return CMD_RET_FAILURE;
+	}
+	printf("host %s is alive\n", argv[1]);
+
 
 	net_update_ip = string_to_ip(argv[1]);
 	if (net_update_ip.s_addr == 0)
+	{
+		printf("exiting on net_update_ip.s_addr check...\n");
 		return CMD_RET_USAGE;
-
-	//memcpy(net_update_ip.s_addr, net_ping_ip.s_addr, sizeof(net_ping_ip));
-
-	if (net_loop(PING) < 0) {
-		printf("ping to host %s failed; host is not alive\n", argv[1]);
-		return CMD_RET_FAILURE;
 	}
-
-	printf("host %s is alive\n", argv[1]);
-
 	if (net_loop(SEND_UPDATE) < 0) {
 		printf("send_update to host %s failed; \n", argv[1]);
 		return CMD_RET_FAILURE;
@@ -324,12 +336,17 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 
 	return CMD_RET_SUCCESS;
 }
+U_BOOT_CMD(send_update, 5, 1, do_send_update,
+	   "send update package files to device via ethernet connection",
+	   "[ipaddress] [validate|no_validate] [component] [filename]\n"
+	   "    - validate or no validate of the filename for the specified component\n"
+	   "send_update <validate|no_validate>  <component> <filename>");
 
-U_BOOT_CMD(
-	send_update, 2, 1, do_send_update,
-	"send update .... add info",
-	"device"
-);
+//U_BOOT_CMD(
+//	send_update, 2, 1, do_send_update,
+//	"send update .... add info",
+//	"device"
+//);
 #endif
 
 

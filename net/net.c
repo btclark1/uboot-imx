@@ -126,6 +126,9 @@
 #include "wol.h"
 #endif
 
+#include "send_update.h"
+
+
 /** BOOTP EXTENTIONS **/
 
 /* Our subnet mask (0=unknown) */
