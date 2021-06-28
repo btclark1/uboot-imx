@@ -301,13 +301,11 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_SEND_UPDATE)
 static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 4)
+	if (argc < 3)
 	{
 		printf("exiting on argc check - argc = %d, argv[0] = %s, argv[1] = %s\n", argc, argv[0], argv[1]);
 		return CMD_RET_USAGE;
 	}
-
-	printf("exiting on argc check - argc = %d, argv[0] = %s, argv[1] = %s\n", argc, argv[0], argv[1]);
 
 	/* Ping the destination to make sure its alive */
 	net_ping_ip = string_to_ip(argv[1]);
@@ -334,22 +332,18 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 		return CMD_RET_FAILURE;
 	}
 
+	copy_filename(net_update_file_name, argv[2],
+			      sizeof(net_update_file_name));
+
 	return CMD_RET_SUCCESS;
 }
-U_BOOT_CMD(send_update, 5, 1, do_send_update,
-	   "send update package files to device via ethernet connection",
-	   "[ipaddress] [validate|no_validate] [component] [filename]\n"
-	   "    - validate or no validate of the filename for the specified component\n"
-	   "send_update <validate|no_validate>  <component> <filename>");
+U_BOOT_CMD(send_update, 3, 0, do_send_update,
+	   "Send update package files to device via ethernet connection",
+	   "[ipaddress] of destination \n"
+		"[filename]  to send \n"
+	   "send_update <ipaddress> <filename>");
 
-//U_BOOT_CMD(
-//	send_update, 2, 1, do_send_update,
-//	"send update .... add info",
-//	"device"
-//);
 #endif
-
-
 
 #if defined(CONFIG_CMD_CDP)
 
