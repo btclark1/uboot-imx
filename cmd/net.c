@@ -301,6 +301,8 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_SEND_UPDATE)
 static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	run_as_client = 0;
+	
 	if (argc < 3)
 	{
 		printf("exiting on argc check - argc = %d, argv[0] = %s, argv[1] = %s\n", argc, argv[0], argv[1]);
@@ -332,9 +334,7 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 //			      sizeof(net_update_file_name));
 
 	if(memcmp(argv[2],"client", 6) == 0)
-	{
 		run_as_client = 1;
-	}
 
 	if (net_loop(SEND_UPDATE) < 0) {
 		printf("send_update to host %s failed; \n", argv[1]);

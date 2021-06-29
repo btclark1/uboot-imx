@@ -19,7 +19,6 @@ B. Clark
 #include <net.h>
 #include <net/tftp.h>
 
-
 struct __packed update_header {
 	uchar id;
 	uchar flag;
@@ -147,6 +146,11 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	char update_data[DATA_SIZE] = {0};
 	unsigned int update_data_len = 0;
 
+	if( run_as_client)
+		printf("Received as Client ... \n");
+	else
+		printf("Received as Server ... \n");
+	
 	/* check its from our port and the expected IP */
 	if (dport != our_port)
 	{
@@ -156,6 +160,8 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 
 	//remote_port = sport;
 
+	
+	printf("in_addr sip.s_addr = %d\n", sip.s_addr);
 
 	printf("update_rec_handler - packet = %s, sport = %d, dport = %d\n", packet, sport, dport);
 
@@ -171,17 +177,15 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	if (len > 0)
 		memcpy(update_data, packet, len);
 
-
 	if (header.seq == sequence_number) {
 		update_send(header, update_data,
 					update_data_len, 0);
 		sequence_number++;
-		printf("update_handler State = INIT/UPDATE... seq #'s match\n");			
 	} else if (header.seq == sequence_number - 1) {
 		/* Retransmit last sent packet */
 		update_send(header, update_data,
 					update_data_len, 1);
-		printf("update_handler State = INIT/UPDATE... seq #'s DONT match... retransmit\n");			
+		printf("update_handler .. seq #'s DONT match... retransmit\n");			
 	}
 }
 
@@ -206,6 +210,9 @@ void update_start(void)
 		printf("Sending command on %pI4\n", &net_ip);
 
 		update_send(header, update_data, sizeof(update_data), 0);
+		
+		net_set_udp_handler(update_rec_handler);
+
 	} 
 	else
 	{
