@@ -96,59 +96,26 @@ void update_send(struct update_header header, char *update_data,
 	memcpy(packet, &response_header, sizeof(response_header));
 	packet += sizeof(response_header);
 
-	switch (header.id) {
-	case QUERY:
-		printf("update_send State = QUERY, sequence_number = %d\n", sequence_number);
-		tmp = htons(sequence_number);
-		memcpy(packet, &tmp, sizeof(tmp));
-		packet += sizeof(tmp);
-		break;
-	case INIT:
-		printf("update_send State = INIT, sequence_number = %d\n", sequence_number);
-		tmp = htons(udp_version);
-		memcpy(packet, &tmp, sizeof(tmp));
-		packet += sizeof(tmp);
-		tmp = htons(packet_size);
-		memcpy(packet, &tmp, sizeof(tmp));
-		packet += sizeof(tmp);
-		break;
-	case ERROR:
-		printf("update_send State = ERROR, sequence_number = %d\n", sequence_number);
-		memcpy(packet, error_msg, strlen(error_msg));
-		packet += strlen(error_msg);
-		break;
-	case UPDATE:
-		printf("update_send State = UPDATE, sequence_number = %d\n", sequence_number);
-		/* Write response */
-		sprintf(response, "%s %s", "From send_update", update_data);
-		memcpy(packet, response, strlen(response));
-		packet += strlen(response);
 
-		/* Write  file */
-		strcpy((char *)packet, net_update_file_name);
-		packet += strlen(net_update_file_name) + 1;
-		/*
-		 * Sent some INFO packets, need to update sequence number in
-		 * header
-		 */
-		if (header.seq != sequence_number) {
-			response_header.seq = htons(sequence_number);
-			memcpy(packet_base, &response_header,
-			       sizeof(response_header));
-		}
-		break;
-	case DONE:
-		printf("update_send State = DONE, sequence_number = %d\n", sequence_number);
-		/* Write response */
-		sprintf(response, "%s - DONE = %d", "From send_update", DONE);
-		memcpy(packet, response, strlen(response));
-		packet += strlen(response);
-		break;
+	printf("update_send State = UPDATE, sequence_number = %d\n", sequence_number);
+	/* Write response */
+	sprintf(response, "%s %s", "From send_update", update_data);
+	memcpy(packet, response, strlen(response));
+	packet += strlen(response);
 
-	default:
-		pr_err("ID %d not implemented.\n", header.id);
-		return;
+	/* Write  file */
+	strcpy((char *)packet, net_update_file_name);
+	packet += strlen(net_update_file_name) + 1;
+	/*
+		* Sent some INFO packets, need to update sequence number in
+		* header
+		*/
+	if (header.seq != sequence_number) {
+		response_header.seq = htons(sequence_number);
+		memcpy(packet_base, &response_header,
+					sizeof(response_header));
 	}
+
 
 	len = packet - packet_base;
 
@@ -184,7 +151,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 		return;
 	}
 
-	remote_port = sport;
+	//remote_port = sport;
 
 
 	printf("update_rec_handler - packet = %s, sport = %d, dport = %d\n", packet, sport, dport);
@@ -196,37 +163,22 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	packet += sizeof(header);
 	len -= sizeof(header);
 
-	int id = ntohs(header.id);
-	switch (id) {
-	case QUERY:
-		printf("update_handler State = QUERY\n");
-		update_send(header, update_data, 0, 0);
-		break;
-	case INIT:
-	case UPDATE:
-		printf("update_handler State = INIT/UPDATE\n");
-		update_data_len = len;
-		if (len > 0)
-			memcpy(update_data, packet, len);
+	printf("update_handler State = INIT/UPDATE\n");
+	update_data_len = len;
+	if (len > 0)
+		memcpy(update_data, packet, len);
 
 
-		if (header.seq == sequence_number) {
-			update_send(header, update_data,
-				      update_data_len, 0);
-			sequence_number++;
-			printf("update_handler State = INIT/UPDATE... seq #'s match\n");			
-		} else if (header.seq == sequence_number - 1) {
-			/* Retransmit last sent packet */
-			update_send(header, update_data,
-				      update_data_len, 1);
-			printf("update_handler State = INIT/UPDATE... seq #'s DONT match... retransmit\n");			
-		}
-		break;
-	default:
-		pr_err("ID %d not implemented.\n", header.id);
-		header.id = ERROR;
-		update_send(header, update_data, 0, 0);
-		break;
+	if (header.seq == sequence_number) {
+		update_send(header, update_data,
+					update_data_len, 0);
+		sequence_number++;
+		printf("update_handler State = INIT/UPDATE... seq #'s match\n");			
+	} else if (header.seq == sequence_number - 1) {
+		/* Retransmit last sent packet */
+		update_send(header, update_data,
+					update_data_len, 1);
+		printf("update_handler State = INIT/UPDATE... seq #'s DONT match... retransmit\n");			
 	}
 }
 
@@ -240,6 +192,8 @@ void update_start_server(void)
 	printf("Listening for Update command on %pI4\n", &net_ip);
 
 	our_port = WELL_KNOWN_PORT;
+	remote_port = WELL_KNOWN_PORT;
+
 
 	net_set_udp_handler(update_rec_handler);
 
