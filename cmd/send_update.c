@@ -9,6 +9,8 @@ B. Clark
 #include <command.h>
 #include <errno.h>
 #include <malloc.h>
+#include <stdlib.h>    /* getenv, atoi */
+
 #include <linux/err.h>
 #include <dm.h>
 #include <dm/root.h>
@@ -17,10 +19,10 @@ B. Clark
 #include <net.h>
 #include <net/tftp.h>
 
-//#include <watchdog.h>
 
 struct __packed update_header {
 	uchar id;
+	uchar flag;
 	unsigned short seq;
 };
 #define UPDATE_RESPONSE_LEN 10
@@ -194,7 +196,8 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	packet += sizeof(header);
 	len -= sizeof(header);
 
-	switch (header.id) {
+	int id = ntohs(header.id);
+	switch (id) {
 	case QUERY:
 		printf("update_handler State = QUERY\n");
 		update_send(header, update_data, 0, 0);
