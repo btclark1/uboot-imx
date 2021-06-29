@@ -302,26 +302,12 @@ U_BOOT_CMD(
 static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	run_as_client = 0;
-	
+
 	if (argc < 3)
 	{
 		printf("exiting on argc check - argc = %d, argv[0] = %s, argv[1] = %s\n", argc, argv[0], argv[1]);
 		return CMD_RET_USAGE;
 	}
-
-	/* Ping the destination to make sure its alive */
-	net_ping_ip = string_to_ip(argv[1]);
-	if (net_ping_ip.s_addr == 0)
-	{
-		printf("exiting on net_ping_ip.s_addr check...\n");
-		return CMD_RET_USAGE;
-	}
-	if (net_loop(PING) < 0) {
-		printf("ping failed; host %s is not alive\n", argv[1]);
-		return CMD_RET_FAILURE;
-	}
-	printf("host %s is alive\n", argv[1]);
-
 
 	net_update_ip = string_to_ip(argv[1]);
 	if (net_update_ip.s_addr == 0)
