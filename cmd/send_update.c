@@ -44,7 +44,6 @@ static unsigned int last_packet_len;
 
 /* Sequence number sent for every packet */
 static unsigned short sequence_number = 1;
-static const unsigned short packet_size = PACKET_SIZE;
 static const unsigned short udp_version = 1;
 
 
@@ -172,10 +171,12 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	packet += sizeof(header);
 	len -= sizeof(header);
 
-	printf("update_handler State = INIT/UPDATE\n");
+	
 	update_data_len = len;
 	if (len > 0)
 		memcpy(update_data, packet, len);
+
+	printf("Sending back -> update_data = %s, len = %d\n",update_data, len);
 
 	if (header.seq == sequence_number) {
 		update_send(header, update_data,
@@ -209,10 +210,10 @@ void update_start(void)
 		
 		printf("Sending command on %pI4\n", &net_ip);
 
-		update_send(header, update_data, sizeof(update_data), 0);
-		
 		net_set_udp_handler(update_rec_handler);
 
+		update_send(header, update_data, sizeof(update_data), 0);
+		
 	} 
 	else
 	{
