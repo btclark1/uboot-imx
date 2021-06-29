@@ -506,7 +506,7 @@ restart:
 
 #if defined(CONFIG_CMD_SEND_UPDATE)
 		case SEND_UPDATE:
-			update_start_server();
+			update_start();
 			break;
 #endif
 

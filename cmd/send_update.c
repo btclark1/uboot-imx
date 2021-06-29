@@ -52,6 +52,7 @@ static const unsigned short udp_version = 1;
 /* The ip address to update to */
 struct in_addr net_update_ip;
 char net_update_file_name[128];
+int run_as_client = 0;
 
 //void send_update_start(void);
 
@@ -86,6 +87,7 @@ void update_send(struct update_header header, char *update_data,
 
 		/* Resend last packet */
 	if (retransmit) {
+		printf("Resending last packet...\n");
 		memcpy(packet, last_packet, last_packet_len);
 		net_send_udp_packet(net_server_ethaddr, net_update_ip,
 				    remote_port, our_port, last_packet_len);
@@ -104,10 +106,11 @@ void update_send(struct update_header header, char *update_data,
 	packet += strlen(response);
 
 	/* Write  file */
-	strcpy((char *)packet, net_update_file_name);
-	packet += strlen(net_update_file_name) + 1;
-	/*
-		* Sent some INFO packets, need to update sequence number in
+	//strcpy((char *)packet, net_update_file_name);
+	//packet += strlen(net_update_file_name) + 1;
+
+	/*  from fastboot code.... can use to resend
+		* may have Sent some INFO packets, need to update sequence number in
 		* header
 		*/
 	if (header.seq != sequence_number) {
@@ -183,28 +186,33 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 }
 
 /******************************************************/
-void update_start_server(void)
+void update_start(void)
 {
 	struct update_header header;
 	char update_data[10];
 
 	printf("Using %s device\n", eth_get_name());
-	printf("Listening for Update command on %pI4\n", &net_ip);
+
 
 	our_port = WELL_KNOWN_PORT;
 	remote_port = WELL_KNOWN_PORT;
 
+	if(run_as_client)
+	{
+		header.id = 1;
+		header.seq = 1;
+		memcpy(update_data, "Test", 4);
+		
+		printf("Sending command on %pI4\n", &net_ip);
 
-	net_set_udp_handler(update_rec_handler);
+		update_send(header, update_data, sizeof(update_data), 0);
+	} 
+	else
+	{
+		printf("Listening for Update command on %pI4\n", &net_ip);
+		net_set_udp_handler(update_rec_handler);
+	}
 
-	/* zero out server ether in case the server ip has changed */
-	memset(net_server_ethaddr, 0, 6);
-
-	header.id = QUERY;
-	header.seq = 1;
-	memcpy(update_data, "Test", 4);
-
-	update_send(header, update_data, sizeof(update_data), 0);
 }
 
 

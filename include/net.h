@@ -568,6 +568,7 @@ extern struct in_addr net_ping_ip;	/* the ip address to ping */
 #if defined(CONFIG_CMD_SEND_UPDATE)
 extern struct in_addr net_update_ip;	/* the ip address to ping */
 extern char net_update_file_name[128];
+extern int run_as_client;
 #endif
 
 
