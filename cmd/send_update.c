@@ -197,6 +197,14 @@ static void response_timeout_handler(void)
 }
 
 /******************************************************/
+static void update_wait_arp_handler(uchar *pkt, unsigned dest,
+				 struct in_addr sip, unsigned src,
+				 unsigned len)
+{
+	net_set_state(NETLOOP_SUCCESS); /* got arp reply - quit net loop */
+}
+
+/******************************************************/
 void update_start(void)
 {
 	struct update_header header;
@@ -208,6 +216,8 @@ void update_start(void)
 	our_port = WELL_KNOWN_PORT;
 	remote_port = WELL_KNOWN_PORT;
 
+	net_set_arp_handler(update_wait_arp_handler);
+
 	if(run_as_client)
 	{
 		header.id = 1;
@@ -216,9 +226,10 @@ void update_start(void)
 		
 		printf("Sending command on %pI4\n", &net_ip);
 
+		net_set_timeout_handler(5000UL, response_timeout_handler);
+
 		update_send(header, update_data, sizeof(update_data), 0);
 
-		net_set_timeout_handler(5000UL, response_timeout_handler);
 	} 
 	else
 	{
