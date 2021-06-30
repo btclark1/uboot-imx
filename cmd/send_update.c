@@ -66,7 +66,6 @@ void update_start_server(void);
 //	update_send("BTCBTC");
 //	return;
 //}
-
 /******************************************/
 void update_send(struct update_header header, char *update_data,
 			  unsigned int update_data_len, uchar retransmit)
@@ -171,6 +170,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	packet += sizeof(header);
 	len -= sizeof(header);
 
+asdasd
 	
 	update_data_len = len;
 	if (len > 0)
@@ -209,8 +209,6 @@ void update_start(void)
 		memcpy(update_data, "Test", 4);
 		
 		printf("Sending command on %pI4\n", &net_ip);
-
-		net_set_udp_handler(update_rec_handler);
 
 		update_send(header, update_data, sizeof(update_data), 0);
 		
