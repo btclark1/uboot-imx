@@ -72,8 +72,7 @@ void update_send(struct update_header header, char *update_data,
 	uchar *packet_base;
 	int len = 0;
 	char response[UPDATE_RESPONSE_LEN] = {0};
-	short tmp;
-	const char *error_msg = "An error occurred.";
+
 
 	struct update_header response_header = header;
 	++sequence_number;
