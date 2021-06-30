@@ -21,10 +21,6 @@
 #define CONFIG_CMD_SEND_UPDATE
 #endif
 
-#ifndef CONFIG_API
-#define CONFIG_API
-#endif
-
 #ifdef CONFIG_SECURE_BOOT
 #define CONFIG_CSF_SIZE			0x2000 /* 8K region */
 #endif
@@ -98,7 +94,7 @@
 #define CONFIG_CMD_MII
 #define CONFIG_MII
 #define CONFIG_CMD_MDIO
-#define CONFIG_ETHPRIME			"eth0"
+#define CONFIG_ETHPRIME			"FEC"
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define FEC_QUIRK_ENET_MAC

@@ -55,7 +55,7 @@ int run_as_client = 0;
 void update_send(struct update_header header, char *update_data,
 			  unsigned int update_data_len, uchar retransmit);
 
-void update_start_server(void);
+void update_start(void);
 
 /******************************************/
 //void send_update_start(void)
