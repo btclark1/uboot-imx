@@ -213,7 +213,7 @@ void update_start(void)
 	{
 		header.id = 1;
 		header.seq = 1;
-		memcpy(update_data, "BTC_Test", 8);
+		memcpy(update_data, "Test", 4);
 		
 		printf("Sending command on %pI4\n", &net_ip);
 
