@@ -170,8 +170,6 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	packet += sizeof(header);
 	len -= sizeof(header);
 
-asdasd
-	
 	update_data_len = len;
 	if (len > 0)
 		memcpy(update_data, packet, len);
