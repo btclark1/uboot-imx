@@ -44,8 +44,6 @@ static unsigned int last_packet_len;
 
 /* Sequence number sent for every packet */
 static unsigned short sequence_number = 1;
-static const unsigned short udp_version = 1;
-
 
 /* The ip address to update to */
 struct in_addr net_update_ip;
@@ -180,12 +178,23 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 		update_send(header, update_data,
 					update_data_len, 0);
 		sequence_number++;
+		
+		printf("header.seq == sequence_number - setting NETLOOP_SUCCESS\n");
+		net_set_state(NETLOOP_SUCCESS);
+
 	} else if (header.seq == sequence_number - 1) {
 		/* Retransmit last sent packet */
 		update_send(header, update_data,
 					update_data_len, 1);
 		printf("update_handler .. seq #'s DONT match... retransmit\n");			
 	}
+}
+static void response_timeout_handler(void)
+{
+	printf("Timeout seting NETLOOP_FAIL\n");
+
+	eth_halt();
+	net_set_state(NETLOOP_FAIL);	/* we did not get the reply */
 }
 
 /******************************************************/
@@ -204,12 +213,13 @@ void update_start(void)
 	{
 		header.id = 1;
 		header.seq = 1;
-		memcpy(update_data, "Test", 4);
+		memcpy(update_data, "BTC_Test", 8);
 		
 		printf("Sending command on %pI4\n", &net_ip);
 
 		update_send(header, update_data, sizeof(update_data), 0);
-		
+
+		net_set_timeout_handler(5000UL, response_timeout_handler);
 	} 
 	else
 	{
