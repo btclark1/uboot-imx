@@ -35,14 +35,10 @@ static int remote_port;
 /* The UDP port at our end */
 static int our_port;
 
-/* Keep track of last packet for resubmission */
-static uchar last_packet[PACKET_SIZE];
-
 /* The ip address to update to */
 struct in_addr net_update_ip;
 char net_update_file_name[128];
 int run_as_client = 0;
-static unsigned int seq_cnt = 1;
 
 void update_send(struct update_header header, char *update_data,
 			  unsigned int update_data_len);
@@ -65,7 +61,8 @@ void update_send(struct update_header header, char *update_data,
 	packet = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
 	packet_base = packet;
 
-
+	message_header.seq++;
+	unsigned int seq_cnt = message_header.seq;
 	/* Write headers */
 	message_header.seq = htons(message_header.seq);
 	memcpy(packet, &message_header, sizeof(message_header));
@@ -85,9 +82,8 @@ void update_send(struct update_header header, char *update_data,
 
 	net_send_udp_packet(net_server_ethaddr, net_update_ip, remote_port, our_port, len);
 
-	if(seq_cnt <= 10)
-		net_set_udp_handler(update_rec_handler);
-	seq_cnt++;
+	if(seq_cnt >= 10)
+		net_set_state(NETLOOP_SUCCESS);
 	
 	printf("End of update_send...seq_cnt = %d \n", seq_cnt);
 }
