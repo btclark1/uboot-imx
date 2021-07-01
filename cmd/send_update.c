@@ -21,7 +21,7 @@ B. Clark
 
 struct __packed update_header {
 	uchar id;
-	uchar flag;
+	uchar flags;
 	unsigned short seq;
 };
 #define UPDATE_RESPONSE_LEN 10
@@ -89,15 +89,12 @@ void update_send(struct update_header header, char *update_data,
 	}
 
 	/* Write headers */
+	response_header.seq = htons(response_header.seq);
 	memcpy(packet, &response_header, sizeof(response_header));
 	packet += sizeof(response_header);
 
 
-	printf("update_send State = UPDATE, sequence_number = %d\n", sequence_number);
-	/* Write response */
-	sprintf(response, "%s %s", "From send_update", update_data);
-	memcpy(packet, response, strlen(response));
-	packet += strlen(response);
+	
 
 	/* Write  file */
 	//strcpy((char *)packet, net_update_file_name);
@@ -108,11 +105,16 @@ void update_send(struct update_header header, char *update_data,
 		* header
 		*/
 	if (header.seq != sequence_number) {
+		printf("no match - header.seq = %d, sequence_number = %d\n", header.seq, sequence_number);
 		response_header.seq = htons(sequence_number);
 		memcpy(packet_base, &response_header,
 					sizeof(response_header));
 	}
 
+	/* Write response */
+	sprintf(response, "%s %s", "From send_update ", update_data);
+	memcpy(packet, response, strlen(response));
+	packet += strlen(response);
 
 	len = packet - packet_base;
 
@@ -156,14 +158,14 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	//remote_port = sport;
 
 	
-	printf("in_addr sip.s_addr = %d\n", sip.s_addr);
+	printf("in_addr sip.s_addr = %dl\n", sip.s_addr);
 
-	printf("update_rec_handler - packet = %s, sport = %d, dport = %d\n", packet, sport, dport);
+	printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
 
 	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
 		return;
 	memcpy(&header, packet, sizeof(header));
-	header.seq = ntohs(header.seq);
+	header.seq = ntohs(header.seq);	
 	packet += sizeof(header);
 	len -= sizeof(header);
 
@@ -171,7 +173,9 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	if (len > 0)
 		memcpy(update_data, packet, len);
 
-	printf("Sending back -> update_data = %s, len = %d\n",update_data, len);
+	printf("Sending back -> header.id = %d , header.flags = %d, header.seq = %d\n",
+			header.id, header.flags, header.seq);
+	printf("Sending back -> update_data = %s, len = %d \n",update_data, len);
 
 	if (header.seq == sequence_number) {
 		update_send(header, update_data,
@@ -208,7 +212,7 @@ static void update_wait_arp_handler(uchar *pkt, unsigned dest,
 void update_start(void)
 {
 	struct update_header header;
-	char update_data[10];
+	char update_data[1024];
 
 	printf("Using %s device\n", eth_get_name());
 
@@ -222,6 +226,7 @@ void update_start(void)
 	{
 		header.id = 1;
 		header.seq = 1;
+		header.flags = 0xff;
 		memcpy(update_data, "Test", 4);
 		
 		printf("Sending command on %pI4\n", &net_ip);
