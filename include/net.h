@@ -18,10 +18,10 @@
 #include <linux/if_ether.h>
 #include <rand.h>
 
-#define DEBUG_LL_STATE 0	/* Link local state machine changes */
-#define DEBUG_DEV_PKT 0		/* Packets or info directed to the device */
-#define DEBUG_NET_PKT 0		/* Packets on info on the network at large */
-#define DEBUG_INT_STATE 0	/* Internal network state changes */
+#define DEBUG_LL_STATE 1	/* Link local state machine changes */
+#define DEBUG_DEV_PKT 1		/* Packets or info directed to the device */
+#define DEBUG_NET_PKT 1		/* Packets on info on the network at large */
+#define DEBUG_INT_STATE 1	/* Internal network state changes */
 
 /*
  *	The number of receive packet buffers, and the required packet buffer
