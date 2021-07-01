@@ -24,7 +24,7 @@ struct __packed update_header {
 	uchar flags;
 	unsigned short seq;
 };
-#define UPDATE_RESPONSE_LEN 1024
+#define UPDATE_MESSAGE_LEN 1024
 #define PACKET_SIZE 1024
 #define DATA_SIZE (PACKET_SIZE - sizeof(struct update_header))
 
@@ -37,68 +37,59 @@ static int our_port;
 
 /* Keep track of last packet for resubmission */
 static uchar last_packet[PACKET_SIZE];
-static unsigned int last_packet_len;
 
 /* The ip address to update to */
 struct in_addr net_update_ip;
 char net_update_file_name[128];
 int run_as_client = 0;
-
-//void send_update_start(void);
+static unsigned int seq_cnt = 0;
 
 void update_send(struct update_header header, char *update_data,
-			  unsigned int update_data_len, uchar retransmit);
-
+			  unsigned int update_data_len);
 void update_start(void);
-
 static void update_rec_handler(uchar *packet, unsigned int dport,
 			     struct in_addr sip, unsigned int sport,
 			     unsigned int len);
 
+/****************************************************************/
 void update_send(struct update_header header, char *update_data,
-			  unsigned int update_data_len, uchar retransmit)
+			  unsigned int update_data_len)
 {
 	uchar *packet;
 	uchar *packet_base;
 	int len = 0;
-	char response[UPDATE_RESPONSE_LEN] = {0};
+	char message[UPDATE_MESSAGE_LEN] = {0};
 
 
-	struct update_header response_header = header;
+	struct update_header message_header = header;
 	packet = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
 	packet_base = packet;
 
-		/* Resend last packet */
-	if (retransmit) {
-		printf("Resending last packet...\n");
-		memcpy(packet, last_packet, last_packet_len);
-		net_send_udp_packet(net_server_ethaddr, net_update_ip,
-				    remote_port, our_port, last_packet_len);
-		return;
-	}
+
 	/* Write headers */
-	response_header.seq = htons(response_header.seq);
-	memcpy(packet, &response_header, sizeof(response_header));
-	packet += sizeof(response_header);
+	message_header.seq = htons(message_header.seq);
+	memcpy(packet, &message_header, sizeof(message_header));
+	packet += sizeof(message_header);
 	/* Write  file */
 	//strcpy((char *)packet, net_update_file_name);
 	//packet += strlen(net_update_file_name) + 1;
 
-	/* Write response */
-	sprintf(response, "%s %s", "From send_update ", update_data);
-	memcpy(packet, response, strlen(response));
-	packet += strlen(response);
+	/* Write message */
+	sprintf(message, "%s %s", "From send_update ", update_data);
+	memcpy(packet, message, strlen(message));
+	packet += strlen(message);
 
 	len = packet - packet_base;
-
+		
 	printf("In update_send - len = %d\n", len);
 
 	net_send_udp_packet(net_server_ethaddr, net_update_ip, remote_port, our_port, len);
 
-	printf("In update_send - len = %d\n", len);
-
-	net_set_udp_handler(update_rec_handler);
-	printf("End of update_rec_handler... \n");
+	seq_cnt++;
+	if(seq_cnt < 10)
+		net_set_udp_handler(update_rec_handler);
+	
+	printf("End of update_send...seq_cnt = %d \n", seq_cnt);
 }
 /**********************************************************************/
 /**
@@ -143,7 +134,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	len -= sizeof(header);
 
 	update_data_len = len;
-	if (len > 0)
+	if ((len > 0) && (len < DATA_SIZE))
 		memcpy(update_data, packet, len);
 
 	printf("Sending back -> header.id = %d , header.flags = %d, header.seq = %d\n",
@@ -151,7 +142,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	printf("Sending back -> update_data = %s, len = %d \n",update_data, len);
 
 	
-	update_send(header, update_data,	update_data_len, 0);
+	update_send(header, update_data,	update_data_len);
 
 	printf("End of update_rec_handler... \n");
 }
@@ -196,7 +187,7 @@ void update_start(void)
 
 		net_set_timeout_handler(5000UL, response_timeout_handler);
 
-		update_send(header, update_data, sizeof(update_data), 0);
+		update_send(header, update_data, sizeof(update_data));
 
 	} 
 	else
