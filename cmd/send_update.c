@@ -37,13 +37,12 @@ static int our_port;
 
 enum { ERROR = 0,	QUERY = 1, INIT = 2,	UPDATE = 3, DONE = 4,};
 
-
 /* Keep track of last packet for resubmission */
 static uchar last_packet[PACKET_SIZE];
 static unsigned int last_packet_len;
 
 /* Sequence number sent for every packet */
-static unsigned short sequence_number = 1;
+static unsigned short sequence_number = 0;
 
 /* The ip address to update to */
 struct in_addr net_update_ip;
@@ -57,14 +56,6 @@ void update_send(struct update_header header, char *update_data,
 
 void update_start(void);
 
-/******************************************/
-//void send_update_start(void)
-//{
-	//int rtn = send_message();
-//	update_send("BTCBTC");
-//	return;
-//}
-/******************************************/
 void update_send(struct update_header header, char *update_data,
 			  unsigned int update_data_len, uchar retransmit)
 {
@@ -75,7 +66,6 @@ void update_send(struct update_header header, char *update_data,
 
 
 	struct update_header response_header = header;
-	++sequence_number;
 	packet = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
 	packet_base = packet;
 
@@ -87,15 +77,10 @@ void update_send(struct update_header header, char *update_data,
 				    remote_port, our_port, last_packet_len);
 		return;
 	}
-
 	/* Write headers */
 	response_header.seq = htons(response_header.seq);
 	memcpy(packet, &response_header, sizeof(response_header));
 	packet += sizeof(response_header);
-
-
-	
-
 	/* Write  file */
 	//strcpy((char *)packet, net_update_file_name);
 	//packet += strlen(net_update_file_name) + 1;
@@ -154,10 +139,9 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 		printf("Not our port ... \n");
 		return;
 	}
-
+	//NOT sure we want to do this
 	//remote_port = sport;
 
-	
 	printf("in_addr sip.s_addr = %dl\n", sip.s_addr);
 
 	printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
@@ -178,24 +162,27 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	printf("Sending back -> update_data = %s, len = %d \n",update_data, len);
 
 	if (header.seq == sequence_number) {
-		update_send(header, update_data,
-					update_data_len, 0);
+		update_send(header, update_data,	update_data_len, 0);
 		sequence_number++;
-		
-		printf("header.seq == sequence_number - setting NETLOOP_SUCCESS\n");
-		net_set_state(NETLOOP_SUCCESS);
-
 	} else if (header.seq == sequence_number - 1) {
 		/* Retransmit last sent packet */
 		update_send(header, update_data,
 					update_data_len, 1);
 		printf("update_handler .. seq #'s DONT match... retransmit\n");			
 	}
+
+	if(sequence_number > 3)
+	{
+		printf("Exiting ... sequence_number = %d- setting NETLOOP_SUCCESS\n", sequence_number);
+		sequence_number = 0;
+		net_set_state(NETLOOP_SUCCESS);
+	}
+
 }
 static void response_timeout_handler(void)
 {
-	printf("Timeout seting NETLOOP_FAIL\n");
-
+	printf("Timeout setting NETLOOP_FAIL\n");
+	sequence_number = 0;
 	eth_halt();
 	net_set_state(NETLOOP_FAIL);	/* we did not get the reply */
 }
@@ -205,6 +192,8 @@ static void update_wait_arp_handler(uchar *pkt, unsigned dest,
 				 struct in_addr sip, unsigned src,
 				 unsigned len)
 {
+	printf("Timeout on arp,  update_wait_arp_handler\n");
+	sequence_number = 0;
 	net_set_state(NETLOOP_SUCCESS); /* got arp reply - quit net loop */
 }
 
@@ -225,7 +214,7 @@ void update_start(void)
 	if(run_as_client)
 	{
 		header.id = 1;
-		header.seq = 1;
+		header.seq = 0;
 		header.flags = 0xff;
 		memcpy(update_data, "Test", 4);
 		
