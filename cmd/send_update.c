@@ -24,7 +24,7 @@ struct __packed update_header {
 	uchar flags;
 	unsigned short seq;
 };
-#define UPDATE_RESPONSE_LEN 10
+#define UPDATE_RESPONSE_LEN 1024
 #define PACKET_SIZE 1024
 #define DATA_SIZE (PACKET_SIZE - sizeof(struct update_header))
 
@@ -142,8 +142,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	//NOT sure we want to do this
 	//remote_port = sport;
 
-	printf("in_addr sip.s_addr = %dl\n", sip.s_addr);
-
+	printf("n_addr sip.s_addr =  %08X", ntohl(sip.s_addr));
 	printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
 
 	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
@@ -165,10 +164,10 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 		update_send(header, update_data,	update_data_len, 0);
 		sequence_number++;
 	} else if (header.seq == sequence_number - 1) {
+		printf("update_handler .. seq #'s DONT match... retransmit\n");
 		/* Retransmit last sent packet */
 		update_send(header, update_data,
 					update_data_len, 1);
-		printf("update_handler .. seq #'s DONT match... retransmit\n");			
 	}
 
 	if(sequence_number > 3)
@@ -194,7 +193,7 @@ static void update_wait_arp_handler(uchar *pkt, unsigned dest,
 {
 	printf("Timeout on arp,  update_wait_arp_handler\n");
 	sequence_number = 0;
-	net_set_state(NETLOOP_SUCCESS); /* got arp reply - quit net loop */
+	net_set_state(NETLOOP_FAIL); /* got arp reply - quit net loop */
 }
 
 /******************************************************/
