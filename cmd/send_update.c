@@ -144,11 +144,11 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	
 	update_send(header, update_data,	update_data_len);
 	
-	if( header.seq <= 10)
+	if( header.seq >= 10)
 	{
 		net_set_state(NETLOOP_SUCCESS);
 	}
-	printf("End of update_rec_handler... \n");
+	printf("End of update_rec_handler...header.seq = %d \n", header.seq);
 }
 static void response_timeout_handler(void)
 {
