@@ -42,7 +42,7 @@ static uchar last_packet[PACKET_SIZE];
 struct in_addr net_update_ip;
 char net_update_file_name[128];
 int run_as_client = 0;
-static unsigned int seq_cnt = 0;
+static unsigned int seq_cnt = 1;
 
 void update_send(struct update_header header, char *update_data,
 			  unsigned int update_data_len);
@@ -85,9 +85,9 @@ void update_send(struct update_header header, char *update_data,
 
 	net_send_udp_packet(net_server_ethaddr, net_update_ip, remote_port, our_port, len);
 
-	seq_cnt++;
-	if(seq_cnt < 10)
+	if(seq_cnt <= 10)
 		net_set_udp_handler(update_rec_handler);
+	seq_cnt++;
 	
 	printf("End of update_send...seq_cnt = %d \n", seq_cnt);
 }
@@ -143,7 +143,11 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 
 	
 	update_send(header, update_data,	update_data_len);
-
+	
+	if( header.seq <= 10)
+	{
+		net_set_state(NETLOOP_SUCCESS);
+	}
 	printf("End of update_rec_handler... \n");
 }
 static void response_timeout_handler(void)
