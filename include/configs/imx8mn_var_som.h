@@ -93,7 +93,6 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
 #define CONFIG_MII
-#define CONFIG_CMD_MDIO
 #define CONFIG_ETHPRIME			"FEC"
 
 #define CONFIG_FEC_XCV_TYPE		RGMII
@@ -120,8 +119,8 @@
 	CONFIG_MFG_ENV_SETTINGS \
 	"serverip=192.168.1.4\0" \
 	"ipaddr=192.168.1.100\0" \
-	"ethact=eth0\0" \
-	"ethprime=eth0\0" \
+	"ethact=FEC\0" \
+	"ethprime=FEC\0" \
 	"bootdir=/boot\0" \
 	"script=boot.scr\0" \
 	"image=Image.gz\0" \

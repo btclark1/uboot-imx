@@ -141,7 +141,10 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 
 	
 	update_send(header, update_data,	update_data_len);
-	
+
+	// delay some so we can see whats going on.
+	mdelay(1000);
+
 	if( header.seq >= 10)
 	{
 		net_set_state(NETLOOP_SUCCESS);
@@ -230,7 +233,7 @@ void update_start(void)
 	our_port = WELL_KNOWN_PORT;
 	remote_port = WELL_KNOWN_PORT;
 
-	net_set_arp_handler(update_wait_arp_handler);
+	//net_set_arp_handler(update_wait_arp_handler);
 
 	if(run_as_client)
 	{
@@ -241,15 +244,21 @@ void update_start(void)
 		
 		printf("Sending command on %pI4\n", &net_ip);
 
-		net_set_timeout_handler(5000UL, response_timeout_handler);
+		//net_set_timeout_handler(5000UL, response_timeout_handler);
+		
+		
 
 		update_send(header, update_data, sizeof(update_data));
+
+		net_set_udp_handler(update_rec_handler);
+		printf("In update_start - Client - After net_set_udp_handler\n");
 
 	} 
 	else
 	{
 		printf("Listening for Update command on %pI4\n", &net_ip);
 		net_set_udp_handler(update_rec_handler);
+		printf("In update_start - Server - After net_set_udp_handler\n");
 	}
 
 }
