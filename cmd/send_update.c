@@ -74,8 +74,10 @@ void update_send(struct update_header header, char *update_data,
 	//packet += strlen(net_update_file_name) + 1;
 
 	/* Write message */
-	sprintf(message, "%s %s", "From send_update ", update_data);
-	memcpy(packet, message, strlen(message));
+	//sprintf(message, "%s %s", "From send_update ", update_data);
+	//memcpy(packet, message, strlen(message));
+	
+	memcpy(packet, update_data, update_data_len);
 	packet += strlen(message);
 
 	len = packet - packet_base;
@@ -121,7 +123,9 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	//NOT sure we want to do this
 	//remote_port = sport;
 
-	printf("n_addr sip.s_addr =  %08X", ntohl(sip.s_addr));
+	printf("n_addr sip.s_addr =  %d.%d.%d.%d\n", 
+				(ntohl(sip.s_addr)>>12), (ntohl(sip.s_addr)>>8),
+				(ntohl(sip.s_addr)>>4), ntohl(sip.s_addr));
 	printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
 
 	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
@@ -225,7 +229,7 @@ static void update_wait_arp_handler(uchar *pkt, unsigned dest,
 void update_start(void)
 {
 	struct update_header header;
-	char update_data[1024];
+	char * update_data;
 
 	printf("Using %s device\n", eth_get_name());
 
@@ -246,7 +250,7 @@ void update_start(void)
 
 		//net_set_timeout_handler(5000UL, response_timeout_handler);
 		
-		
+		memset(update_data, 0x5A, UPDATE_MESSAGE_LEN);
 
 		update_send(header, update_data, sizeof(update_data));
 
