@@ -73,11 +73,9 @@ void update_send(struct update_header header, char *update_data,
 	//strcpy((char *)packet, net_update_file_name);
 	//packet += strlen(net_update_file_name) + 1;
 
-	/* Write message */
-	//sprintf(message, "%s %s", "From send_update ", update_data);
-	//memcpy(packet, message, strlen(message));
-	
-	memcpy(packet, update_data, update_data_len);
+	/* append more data to message */
+	sprintf(message, "%s %s", "More dtata From send_update... ", update_data);
+	memcpy(packet, message, strlen(message));
 	packet += strlen(message);
 
 	len = packet - packet_base;
@@ -229,7 +227,7 @@ static void update_wait_arp_handler(uchar *pkt, unsigned dest,
 void update_start(void)
 {
 	struct update_header header;
-	char * update_data;
+	char update_data[1024];
 
 	printf("Using %s device\n", eth_get_name());
 

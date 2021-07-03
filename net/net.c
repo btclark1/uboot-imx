@@ -1181,9 +1181,6 @@ void net_process_received_packet(uchar *in_packet, int len)
 		return;
 	}
 #endif
-
-	printf("\nIn net_process_received_packet - call update recieverhere?\n\n");
-
 	if ((myvlanid & VLAN_IDMASK) != VLAN_NONE) {
 		if (vlanid == VLAN_NONE)
 			vlanid = (mynvlanid & VLAN_IDMASK);
