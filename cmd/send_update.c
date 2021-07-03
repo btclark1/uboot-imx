@@ -206,23 +206,6 @@ static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
 	return rv;
 }
 
-
-static void response_timeout_handler(void)
-{
-	printf("Timeout setting NETLOOP_FAIL\n");
-	eth_halt();
-	net_set_state(NETLOOP_FAIL);	/* we did not get the reply */
-}
-
-/******************************************************/
-static void update_wait_arp_handler(uchar *pkt, unsigned dest,
-				 struct in_addr sip, unsigned src,
-				 unsigned len)
-{
-	printf("Timeout on arp,  update_wait_arp_handler\n");
-	net_set_state(NETLOOP_FAIL); /* got arp reply - quit net loop */
-}
-
 /******************************************************/
 void update_start(void)
 {
@@ -230,7 +213,6 @@ void update_start(void)
 	char update_data[1024];
 
 	printf("Using %s device\n", eth_get_name());
-
 
 	our_port = WELL_KNOWN_PORT;
 	remote_port = WELL_KNOWN_PORT;
@@ -245,10 +227,6 @@ void update_start(void)
 		memcpy(update_data, "Test", 4);
 		
 		printf("Sending command on %pI4\n", &net_ip);
-
-		//net_set_timeout_handler(5000UL, response_timeout_handler);
-		
-		memset(update_data, 0x5A, UPDATE_MESSAGE_LEN);
 
 		update_send(header, update_data, sizeof(update_data));
 
