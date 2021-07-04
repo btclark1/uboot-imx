@@ -71,9 +71,10 @@ void update_send(struct update_header header, char *update_data,
 	//strcpy((char *)packet, net_update_file_name);
 	//packet += strlen(net_update_file_name) + 1;
 
-
 	/* append more data to message */
 	int len2 = sprintf(message, "%s %s", "More dtata From send_update... ", update_data);
+	printf(" len2 = %d, update_data_len = %d\n", len2, update_data_len);
+	
 	memcpy(packet, message, (len2+update_data_len));
 	packet += strlen(message);
 
@@ -178,7 +179,7 @@ void update_start(void)
 		header.flags = 0xff;
 		memcpy(update_data, "Test", 4);
 		
-		printf("Client sending command from %pI4\n", &net_ip);
+		printf("Client sending command %s from %pI4\n", update_data, &net_ip);
 
 		update_send(header, update_data, 4);
 
