@@ -73,8 +73,8 @@ void update_send(struct update_header header, char *update_data,
 
 	memcpy(tmp, update_data, update_data_len);
 	/* append more data to message */
-	sprintf(message, "%s %s", "More dtata From send_update... ", tmp);
-	memcpy(packet, message, strlen(message));
+	//sprintf(message, "%s %s", "More dtata From send_update... ", tmp);
+	memcpy(packet, tmp, strlen(tmp));
 	packet += strlen(message);
 
 	len = packet - packet_base;
