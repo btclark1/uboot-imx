@@ -71,9 +71,10 @@ void update_send(struct update_header header, char *update_data,
 	//strcpy((char *)packet, net_update_file_name);
 	//packet += strlen(net_update_file_name) + 1;
 
+
 	/* append more data to message */
-	snprintf(message, update_data_len, "%s %s", "More dtata From send_update... ", update_data);
-	memcpy(packet, message, strlen(message));
+	int len2 = sprintf(message, "%s %s", "More dtata From send_update... ", update_data);
+	memcpy(packet, message, (len2+update_data_len));
 	packet += strlen(message);
 
 	len = packet - packet_base;
@@ -106,7 +107,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	unsigned int update_data_len = 0;
 
 	if( run_as_client)
-		printf("Received as Client ... \n");
+		printf("Received as Client ... len = %d bytes\n", len);
 	else
 		printf("Received as Server ... \n");
 	
@@ -125,7 +126,10 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	//printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
 
 	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
+	{
+
 		return;
+	}
 	memcpy(&header, packet, sizeof(header));
 	header.seq = ntohs(header.seq);	
 	packet += sizeof(header);
