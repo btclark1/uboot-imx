@@ -47,8 +47,6 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 			     struct in_addr sip, unsigned int sport,
 			     unsigned int len);
 
-static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr);
-
 /****************************************************************/
 void update_send(struct update_header header, char *update_data,
 			  unsigned int update_data_len)
@@ -171,11 +169,11 @@ void update_start(void)
 		header.id = 1;
 		header.seq = 0;
 		header.flags = 0xff;
-		memcpy(update_data, "Test\0", 4);
+		memcpy(update_data, "Test", 4);
 		
 		printf("Client sending command on %pI4\n", &net_ip);
 
-		update_send(header, update_data, sizeof(update_data));
+		update_send(header, update_data, 4);
 
 		net_set_udp_handler(update_rec_handler);
 		//printf("In update_start - Client - After net_set_udp_handler\n");
