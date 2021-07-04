@@ -94,3 +94,15 @@ GTAGS
 \#*#
 
 imx-boot-tools/
+
+cmd/send_update_sequence_c
+
+cmd/send_update_small_xfer_final_c
+
+cmd/send_update_with_API_calls_c
+
+cmd/send_update_with_CDP_Code_c
+
+cmd/send_update_with_states_c
+
+cmd/send_update_c_bak_cmd_only_Works_1
