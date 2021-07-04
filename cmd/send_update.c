@@ -85,7 +85,7 @@ void update_send(struct update_header header, char *update_data,
 	if(seq_cnt >= 10)
 		net_set_state(NETLOOP_SUCCESS);
 	
-	printf("End of update_send...seq_cnt = %d, len = %d\n", len);
+	printf("End of update_send...seq_cnt = %d, len = %d\n", seq_cnt, len);
 }
 /**********************************************************************/
 /**
@@ -120,8 +120,8 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	//remote_port = sport;
 
 	printf(" ... from IP =  %d.%d.%d.%d\n", 
-				(ntohl(sip.s_addr)>>24)||0xFF, (ntohl(sip.s_addr)>>16)||0xFF,
-				(ntohl(sip.s_addr)>>8)||0xFF, ntohl(sip.s_addr)||0xFF);
+				(ntohl(sip.s_addr)>>24)&0xFF, (ntohl(sip.s_addr)>>16)&0xFF,
+				(ntohl(sip.s_addr)>>8)&0xFF, ntohl(sip.s_addr)&0xFF);
 	//printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
 
 	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
@@ -171,7 +171,7 @@ void update_start(void)
 		header.id = 1;
 		header.seq = 0;
 		header.flags = 0xff;
-		memcpy(update_data, "Test", 4);
+		memcpy(update_data, "Test\0", 4);
 		
 		printf("Client sending command on %pI4\n", &net_ip);
 
