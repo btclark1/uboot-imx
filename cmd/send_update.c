@@ -71,10 +71,9 @@ void update_send(struct update_header header, char *update_data,
 	//strcpy((char *)packet, net_update_file_name);
 	//packet += strlen(net_update_file_name) + 1;
 
-	memcpy(tmp, update_data, update_data_len);
 	/* append more data to message */
-	//sprintf(message, "%s %s", "More dtata From send_update... ", tmp);
-	memcpy(packet, tmp, strlen(tmp));
+	snprintf(message, update_data_len, "%s %s", "More dtata From send_update... ", update_data);
+	memcpy(packet, message, strlen(message));
 	packet += strlen(message);
 
 	len = packet - packet_base;
@@ -82,8 +81,10 @@ void update_send(struct update_header header, char *update_data,
 	net_send_udp_packet(net_server_ethaddr, net_update_ip, remote_port, our_port, len);
 
 	if(seq_cnt >= 10)
+	{
 		net_set_state(NETLOOP_SUCCESS);
-	
+		return;
+	}
 	printf("End of update_send...seq_cnt = %d, len = %d\n", seq_cnt, len);
 }
 /**********************************************************************/
@@ -146,6 +147,7 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	if( header.seq >= 10)
 	{
 		net_set_state(NETLOOP_SUCCESS);
+		return;
 	}
 
 	//printf("End of update_rec_handler...header.seq = %d \n", header.seq);
