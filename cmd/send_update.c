@@ -55,7 +55,7 @@ void update_send(struct update_header header, char *update_data,
 	uchar *packet_base;
 	int len = 0;
 	char message[UPDATE_MESSAGE_LEN] = {0};
-
+	char tmp[1024];
 
 	struct update_header message_header = header;
 	packet = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
@@ -71,8 +71,9 @@ void update_send(struct update_header header, char *update_data,
 	//strcpy((char *)packet, net_update_file_name);
 	//packet += strlen(net_update_file_name) + 1;
 
+	memcpy(tmp, update_data, update_data_len);
 	/* append more data to message */
-	sprintf(message, "%s %s", "More dtata From send_update... ", update_data);
+	sprintf(message, "%s %s", "More dtata From send_update... ", tmp);
 	memcpy(packet, message, strlen(message));
 	packet += strlen(message);
 
@@ -171,13 +172,12 @@ void update_start(void)
 		header.flags = 0xff;
 		memcpy(update_data, "Test", 4);
 		
-		printf("Client sending command on %pI4\n", &net_ip);
+		printf("Client sending command from %pI4\n", &net_ip);
 
 		update_send(header, update_data, 4);
 
 		net_set_udp_handler(update_rec_handler);
 		//printf("In update_start - Client - After net_set_udp_handler\n");
-
 	} 
 	else
 	{
