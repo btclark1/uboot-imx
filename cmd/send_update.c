@@ -80,14 +80,12 @@ void update_send(struct update_header header, char *update_data,
 
 	len = packet - packet_base;
 		
-	printf("In update_send - len = %d\n", len);
-
 	net_send_udp_packet(net_server_ethaddr, net_update_ip, remote_port, our_port, len);
 
 	if(seq_cnt >= 10)
 		net_set_state(NETLOOP_SUCCESS);
 	
-	printf("End of update_send...seq_cnt = %d \n", seq_cnt);
+	printf("End of update_send...seq_cnt = %d, len = %d\n", len);
 }
 /**********************************************************************/
 /**
@@ -121,10 +119,10 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	//NOT sure we want to do this
 	//remote_port = sport;
 
-	printf("n_addr sip.s_addr =  %d.%d.%d.%d\n", 
-				(ntohl(sip.s_addr)>>12), (ntohl(sip.s_addr)>>8),
-				(ntohl(sip.s_addr)>>4), ntohl(sip.s_addr));
-	printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
+	printf(" ... from IP =  %d.%d.%d.%d\n", 
+				(ntohl(sip.s_addr)>>24)||0xFF, (ntohl(sip.s_addr)>>16)||0xFF,
+				(ntohl(sip.s_addr)>>8)||0xFF, ntohl(sip.s_addr)||0xFF);
+	//printf("update_rec_handler - sport = %d, dport = %d\n", sport, dport);
 
 	if (len < sizeof(struct update_header) || len > PACKET_SIZE)
 		return;
@@ -137,10 +135,9 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 	if ((len > 0) && (len < DATA_SIZE))
 		memcpy(update_data, packet, len);
 
-	printf("Sending back -> header.id = %d , header.flags = %d, header.seq = %d\n",
-			header.id, header.flags, header.seq);
+//	printf("Sending back -> header.id = %d , header.flags = %d, header.seq = %d\n",
+	//		header.id, header.flags, header.seq);
 	printf("Sending back -> update_data = %s, len = %d \n",update_data, len);
-
 	
 	update_send(header, update_data,	update_data_len);
 
@@ -152,58 +149,8 @@ static void update_rec_handler(uchar *packet, unsigned int dport,
 		net_set_state(NETLOOP_SUCCESS);
 	}
 
-	printf("End of update_rec_handler...header.seq = %d \n", header.seq);
+	//printf("End of update_rec_handler...header.seq = %d \n", header.seq);
 
-}
-
-#include <cpu_func.h>
-
-static int update_load(char *filename, ulong msec_max, int cnt_max, ulong addr)
-{
-	int size, rv;
-	ulong saved_timeout_msecs;
-	int saved_timeout_count;
-	char *saved_netretry, *saved_bootfile;
-
-	rv = 0;
-	/* save used globals and env variable */
-	saved_timeout_msecs = tftp_timeout_ms;
-	saved_timeout_count = tftp_timeout_count_max;
-	saved_netretry = strdup(env_get("netretry"));
-	saved_bootfile = strdup(net_boot_file_name);
-
-	/* set timeouts for auto-update */
-	tftp_timeout_ms = msec_max;
-	tftp_timeout_count_max = cnt_max;
-
-	/* we don't want to retry the connection if errors occur */
-	env_set("netretry", "no");
-
-	/* download the update file */
-	image_load_addr = addr;
-	copy_filename(net_boot_file_name, filename, sizeof(net_boot_file_name));
-	size = net_loop(TFTPGET);
-
-	if (size < 0)
-		rv = 1;
-	else if (size > 0)
-		flush_cache(addr, size);
-
-	/* restore changed globals and env variable */
-	tftp_timeout_ms = saved_timeout_msecs;
-	tftp_timeout_count_max = saved_timeout_count;
-
-	env_set("netretry", saved_netretry);
-	if (saved_netretry != NULL)
-		free(saved_netretry);
-
-	if (saved_bootfile != NULL) {
-		copy_filename(net_boot_file_name, saved_bootfile,
-			      sizeof(net_boot_file_name));
-		free(saved_bootfile);
-	}
-
-	return rv;
 }
 
 /******************************************************/
@@ -226,19 +173,19 @@ void update_start(void)
 		header.flags = 0xff;
 		memcpy(update_data, "Test", 4);
 		
-		printf("Sending command on %pI4\n", &net_ip);
+		printf("Client sending command on %pI4\n", &net_ip);
 
 		update_send(header, update_data, sizeof(update_data));
 
 		net_set_udp_handler(update_rec_handler);
-		printf("In update_start - Client - After net_set_udp_handler\n");
+		//printf("In update_start - Client - After net_set_udp_handler\n");
 
 	} 
 	else
 	{
-		printf("Listening for Update command on %pI4\n", &net_ip);
+		printf("Server Listening for Update command on %pI4\n", &net_ip);
 		net_set_udp_handler(update_rec_handler);
-		printf("In update_start - Server - After net_set_udp_handler\n");
+		//printf("In update_start - Server - After net_set_udp_handler\n");
 	}
 
 }
