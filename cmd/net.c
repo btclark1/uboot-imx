@@ -336,8 +336,7 @@ static int do_send_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 U_BOOT_CMD(send_update, 3, 0, do_send_update,
 	   "Send update package files to device via ethernet connection",
 	   "[ipaddress] of destination \n"
-		"[filename]  to send \n"
-	   "send_update <ipaddress> <filename>");
+		"run as a [server] or a [client]");
 
 #endif
 
