@@ -224,7 +224,6 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		gpio_direction_output(gpio, value);
 	}
-		
 	printf("gpio: pin %s (gpio %u) value is ", str_gpio, gpio);
 
 	if (IS_ERR_VALUE(value)) {

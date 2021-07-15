@@ -7,17 +7,15 @@ B. Clark
 /* CMD command includes */
 #include <common.h>
 #include <command.h>
-#include <errno.h>
-#include <malloc.h>
-#include <stdlib.h>    /* getenv, atoi */
+//#include <errno.h>
 
-#include <linux/err.h>
-#include <dm.h>
-#include <dm/root.h>
+//#include <linux/err.h>
+//#include <dm.h>
+//#include <dm/root.h>
 
 /* may need for raw eth */
 #include <net.h>
-#include <net/tftp.h>
+//#include <net/tftp.h>
 
 struct __packed update_header {
 	uchar id;
@@ -55,7 +53,6 @@ void update_send(struct update_header header, char *update_data,
 	uchar *packet_base;
 	int len = 0;
 	char message[UPDATE_MESSAGE_LEN] = {0};
-	char tmp[1024];
 
 	struct update_header message_header = header;
 	packet = net_tx_packet + net_eth_hdr_size() + IP_UDP_HDR_SIZE;
@@ -177,6 +174,7 @@ void update_start(void)
 		header.id = 1;
 		header.seq = 0;
 		header.flags = 0xff;
+		memset(update_data, 0, sizeof(update_data));
 		memcpy(update_data, "Test", 4);
 		
 		printf("Client sending command %s from %pI4\n", update_data, &net_ip);
