@@ -69,7 +69,7 @@ void update_send(struct update_header header, char *update_data,
 	//packet += strlen(net_update_file_name) + 1;
 
 	/* append more data to message */
-	int len2 = sprintf(message, "%s %s", "More dtata From send_update... ", update_data);
+	int len2 = sprintf(message, "%s %s", "More data From send_update... ", update_data);
 	printf(" len2 = %d, update_data_len = %d\n", len2, update_data_len);
 	
 	memcpy(packet, message, (len2+update_data_len));
